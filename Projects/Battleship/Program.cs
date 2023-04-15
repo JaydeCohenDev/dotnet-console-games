@@ -17,7 +17,6 @@ public class Program
 
 	public Program()
 	{
-		
 		_playerBoard = new Board(10, 10);
 		_enemyBoard = new Board(10, 10);
 
