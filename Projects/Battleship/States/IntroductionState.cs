@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Battleship;
+namespace Battleship.States;
 
 public class IntroductionState
 {
-	public IntroductionState(GameRenderer renderer)
+	public IntroductionState(GameRenderer renderer, InputHandler inputHandler)
 	{
 		Console.Clear();
 		renderer.renderMessage = () =>
@@ -19,7 +19,7 @@ public class IntroductionState
 			Console.WriteLine();
 			Console.WriteLine("  Press [enter] to begin...");
 		};
-		Program.renderer.RenderMainView();
-		Program.inputHandler.GetEnterOrEscape();
+		renderer.RenderMainView();
+		inputHandler.GetEnterOrEscape();
 	}
 }
