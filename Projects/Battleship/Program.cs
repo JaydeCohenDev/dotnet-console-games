@@ -4,7 +4,7 @@ using Towel.DataStructures;
 
 public static class Program
 {
-	private static Exception? exception = null;
+	private static Exception? exception;
 	private const int BoardHeight = 10;
 	private const int BoardWidth = 10;
 	private static bool[,] enemyBoardShots;
@@ -12,12 +12,12 @@ public static class Program
 	private static bool[,] playerBoardShots;
 	private static Ship[,] playerBoardShips;
 	private static (int BufferHeight, int BufferWidth, int WindowHeight, int WindowWidth) consoleSize;
-	private static bool isPlacing = false;
-	private static (Ship Ship, int Size, int Row, int Column, bool Vertical) currentPlacement = default;
-	private static bool hasPressedEscape = false;
-	private static (int Row, int Column) gridSelection = default;
-	private static bool isSelecting = false;
-	private static Action? renderMessage = null;
+	private static bool isPlacing;
+	private static (Ship Ship, int Size, int Row, int Column, bool Vertical) currentPlacement;
+	private static bool hasPressedEscape;
+	private static (int Row, int Column) gridSelection;
+	private static bool isSelecting;
+	private static Action? renderMessage;
 	
 	public static void Main(string[] args)
 	{
