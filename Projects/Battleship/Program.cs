@@ -5,18 +5,7 @@ using Towel.DataStructures;
 public static class Program
 {
 	private static Board playerBoard, enemyBoard;
-	
 	private static Exception? exception;
-	
-	/*
-	private const int BoardHeight = 10;
-	private const int BoardWidth = 10;
-	private static bool[,] enemyBoardShots;
-	private static Ship[,] enemyBoardShips;
-	private static bool[,] playerBoardShots;
-	private static Ship[,] playerBoardShips;
-	*/
-	
 	private static ConsoleSize consoleSize;
 	private static bool isPlacing;
 	private static Placement currentPlacement;
@@ -32,99 +21,24 @@ public static class Program
 		
 		try
 		{
-			Console.BackgroundColor = ConsoleColor.Black;
-			Console.ForegroundColor = ConsoleColor.White;
-			Console.Clear();
-			consoleSize = ConsoleSize();
+			SetupConsole();
 
 			while (!hasPressedEscape)
 			{
 				// introduction screen
-				Console.Clear();
-				renderMessage = () =>
-				{
-					Console.WriteLine();
-					Console.WriteLine("  This is a guessing game where you will place your battle ships");
-					Console.WriteLine("  on a grid, and then shoot locations of the enemy grid trying");
-					Console.WriteLine("  to find and sink all of their ships.The first player to sink");
-					Console.WriteLine("  all the enemy ships wins.");
-					Console.WriteLine();
-					Console.WriteLine("  Press [escape] at any time to close the game.");
-					Console.WriteLine();
-					Console.WriteLine("  Press [enter] to begin...");
-				};
-				RenderMainView();
-				GetEnterOrEscape();
-				if (hasPressedEscape)
-				{
-					return;
-				}
+				ShowIntroductionScreen();
+				if (hasPressedEscape) return;
 
 				// ship placement
-				Console.Clear();
-				PlaceDefenseShips();
-				if (hasPressedEscape)
-				{
-					return;
-				}
-				RandomizeOffenseShips();
-				renderMessage = () =>
-				{
-					Console.WriteLine();
-					Console.WriteLine("  The enemy has placed their ships.");
-					Console.WriteLine();
-					Console.WriteLine("  Press [enter] to continue...");
-				};
-				RenderMainView();
+				EnterPlayerPlacementMode();
+				if (hasPressedEscape) return;
+				EnterEnemyPlacementMode();
 
 				// shooting phase
-				gridSelection = new GridPoint(playerBoard.Height / 2, playerBoard.Width / 2);
-				Console.Clear();
-				renderMessage = () =>
-				{
-					Console.WriteLine();
-					Console.WriteLine("  Choose your shots.");
-					Console.WriteLine();
-					Console.WriteLine("  Hit: ##");
-					Console.WriteLine("  Miss: XX");
-					Console.WriteLine("  Use arrow keys to aim.");
-					Console.WriteLine("  Use [enter] to fire at the location.");
-				};
-				isSelecting = true;
-				while (!playerBoard.HasWon() && !enemyBoard.HasWon())
-				{
-					ChooseOffense();
-					if (hasPressedEscape)
-					{
-						return;
-					}
-					RandomlyChooseDefense();
-					RenderMainView();
-				}
-				isSelecting = false;
+				if (RunShootingPhase()) return;
 
 				// game over
-				Console.Clear();
-				renderMessage = () =>
-				{
-					Console.WriteLine();
-					switch ((playerBoard.HasWon(), enemyBoard.HasWon()))
-					{
-						case (true, true):
-							Console.WriteLine("  Draw! All ships were sunk.");
-							break;
-						case (false, true):
-							Console.WriteLine("  You Win! You sunk all the enemy ships.");
-							break;
-						case (true, false):
-							Console.WriteLine("  You Lose! The enemy sunk all your ships.");
-							break;
-					}
-					Console.WriteLine();
-					Console.WriteLine("  Play again [enter] or quit [escape]?");
-				};
-				RenderMainView(showEnemyShips: true);
-				GetEnterOrEscape();
+				ShowGameOver();
 			}
 		}
 		catch (Exception ex)
@@ -134,12 +48,116 @@ public static class Program
 		}
 		finally
 		{
-			Console.CursorVisible = true;
-			Console.ResetColor();
-			Console.Clear();
-			Console.WriteLine(exception?.ToString() ?? "Battleship was closed.");
+			ShowShutdown();
 		}
 
+	}
+
+	private static bool RunShootingPhase()
+	{
+		gridSelection = new GridPoint(playerBoard.Height / 2, playerBoard.Width / 2);
+		Console.Clear();
+		renderMessage = () =>
+		{
+			Console.WriteLine();
+			Console.WriteLine("  Choose your shots.");
+			Console.WriteLine();
+			Console.WriteLine("  Hit: ##");
+			Console.WriteLine("  Miss: XX");
+			Console.WriteLine("  Use arrow keys to aim.");
+			Console.WriteLine("  Use [enter] to fire at the location.");
+		};
+		isSelecting = true;
+		while (!playerBoard.HasWon() && !enemyBoard.HasWon())
+		{
+			ChooseOffense();
+			if (hasPressedEscape) return true;
+			RandomlyChooseDefense();
+			RenderMainView();
+		}
+
+		isSelecting = false;
+		return false;
+	}
+
+	private static void SetupConsole()
+	{
+		Console.BackgroundColor = ConsoleColor.Black;
+		Console.ForegroundColor = ConsoleColor.White;
+		Console.Clear();
+		consoleSize = ConsoleSize();
+	}
+
+	private static void ShowShutdown()
+	{
+		Console.CursorVisible = true;
+		Console.ResetColor();
+		Console.Clear();
+		Console.WriteLine(exception?.ToString() ?? "Battleship was closed.");
+	}
+
+	private static void ShowGameOver()
+	{
+		Console.Clear();
+		renderMessage = () =>
+		{
+			Console.WriteLine();
+			switch ((playerBoard.HasWon(), enemyBoard.HasWon()))
+			{
+				case (true, true):
+					Console.WriteLine("  Draw! All ships were sunk.");
+					break;
+				case (false, true):
+					Console.WriteLine("  You Win! You sunk all the enemy ships.");
+					break;
+				case (true, false):
+					Console.WriteLine("  You Lose! The enemy sunk all your ships.");
+					break;
+			}
+
+			Console.WriteLine();
+			Console.WriteLine("  Play again [enter] or quit [escape]?");
+		};
+		RenderMainView(showEnemyShips: true);
+		GetEnterOrEscape();
+	}
+
+	private static void EnterEnemyPlacementMode()
+	{
+		RandomizeOffenseShips();
+		renderMessage = () =>
+		{
+			Console.WriteLine();
+			Console.WriteLine("  The enemy has placed their ships.");
+			Console.WriteLine();
+			Console.WriteLine("  Press [enter] to continue...");
+		};
+		RenderMainView();
+	}
+
+	private static void EnterPlayerPlacementMode()
+	{
+		Console.Clear();
+		PlaceDefenseShips();
+	}
+
+	private static void ShowIntroductionScreen()
+	{
+		Console.Clear();
+		renderMessage = () =>
+		{
+			Console.WriteLine();
+			Console.WriteLine("  This is a guessing game where you will place your battle ships");
+			Console.WriteLine("  on a grid, and then shoot locations of the enemy grid trying");
+			Console.WriteLine("  to find and sink all of their ships.The first player to sink");
+			Console.WriteLine("  all the enemy ships wins.");
+			Console.WriteLine();
+			Console.WriteLine("  Press [escape] at any time to close the game.");
+			Console.WriteLine();
+			Console.WriteLine("  Press [enter] to begin...");
+		};
+		RenderMainView();
+		GetEnterOrEscape();
 	}
 
 
