@@ -4,11 +4,11 @@ namespace Battleship;
 
 public class ShutdownState
 {
-	public ShutdownState()
+	public ShutdownState(GameRenderer renderer)
 	{
 		Console.CursorVisible = true;
 		Console.ResetColor();
 		Console.Clear();
-		Console.WriteLine(Program.renderer.exception?.ToString() ?? "Battleship was closed.");
+		Console.WriteLine(renderer.exception?.ToString() ?? "Battleship was closed.");
 	}
 }

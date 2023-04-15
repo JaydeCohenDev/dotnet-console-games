@@ -8,19 +8,19 @@ public class EnemyPlacementState
 {
 	private Board enemyBoard;
 	
-	public EnemyPlacementState(Board enemyBoard)
+	public EnemyPlacementState(GameRenderer renderer, Board enemyBoard)
 	{
 		this.enemyBoard = enemyBoard;
 		
 		RandomizeOffenseShips();
-		Program.renderer.renderMessage = () =>
+		renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  The enemy has placed their ships.");
 			Console.WriteLine();
 			Console.WriteLine("  Press [enter] to continue...");
 		};
-		Program.renderer.RenderMainView();
+		renderer.RenderMainView();
 	}
 	
 	private void RandomizeOffenseShips()

@@ -1,16 +1,20 @@
-﻿using System;
+﻿ using System;
 using Towel;
 
 namespace Battleship;
 
 public class PlayerPlacementState
 {
+	private readonly GameRenderer renderer;
+	private readonly InputHandler inputHandler;
 	private readonly Board playerBoard;
 	public static bool isPlacing;
 	public static Placement currentPlacement;
 	
-	public PlayerPlacementState(Board playerBoard)
+	public PlayerPlacementState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard)
 	{
+		this.renderer = renderer;
+		this.inputHandler = inputHandler;
 		this.playerBoard = playerBoard;
 		Console.Clear();
 		PlaceDefenseShips();
@@ -21,7 +25,7 @@ public class PlayerPlacementState
 		isPlacing = true;
 		foreach (Ship ship in Enum.GetValues<Ship>())
 		{
-			Program.renderer.renderMessage = () =>
+			renderer.renderMessage = () =>
 			{
 				Console.WriteLine();
 				Console.WriteLine($"  Place your {ship} on the grid.");
@@ -35,7 +39,7 @@ public class PlayerPlacementState
 			currentPlacement = new Placement(ship, size, 0, 0, true);
 			while (true)
 			{
-				Program.renderer.RenderMainView();
+				renderer.RenderMainView();
 				switch (Console.ReadKey(true).Key)
 				{
 					case ConsoleKey.UpArrow:
@@ -58,19 +62,19 @@ public class PlayerPlacementState
 						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width  - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.Enter:
-						if (Program.playerBoard.IsValidPlacement(currentPlacement))
+						if (playerBoard.IsValidPlacement(currentPlacement))
 						{
 							for (int i = 0; i < currentPlacement.Size; i++)
 							{
-								var row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
-								var col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
+								int row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
+								int col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
 								playerBoard.PlaceShip(ship, row, col);
 							}
 							goto Continue;
 						}
 						break;
 					case ConsoleKey.Escape:
-						Program.inputHandler.HasPressedEscape = true;
+						inputHandler.HasPressedEscape = true;
 						return;
 				}
 			}

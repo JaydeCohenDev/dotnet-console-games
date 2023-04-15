@@ -7,6 +7,14 @@ public class GameRenderer
 	public Action? renderMessage;
 	public Exception? exception;
 	private ConsoleSize consoleSize;
+
+	private Board playerBoard, enemyBoard;
+	
+	public GameRenderer(Board playerBoard, Board enemyBoard)
+	{
+		this.playerBoard = playerBoard;
+		this.enemyBoard = enemyBoard;
+	}
 	
 	private ConsoleSize ConsoleSize()
 	{
@@ -48,15 +56,15 @@ public class GameRenderer
 		Console.WriteLine();
 		Console.WriteLine("  Battleship");
 		Console.WriteLine();
-		for (int row = 0; row < Program.playerBoard.Height * 2 + 1; row++)
+		for (int row = 0; row < playerBoard.Height * 2 + 1; row++)
 		{
 			int boardRow = (row - 1) / 2;
 			Console.Write("  ");
-			for (int col = 0; col < Program.playerBoard.Width * 2 + 1; col++)
+			for (int col = 0; col < playerBoard.Width * 2 + 1; col++)
 			{
 				int boardCol = (col - 1) / 2;
-				bool v = boardRow + 1 < Program.playerBoard.Height && Program.playerBoard.GetShipAt(boardRow, boardCol) == Program.playerBoard.GetShipAt(boardRow + 1, boardCol);
-				bool h = boardCol + 1 < Program.playerBoard.Width && Program.playerBoard.GetShipAt(boardRow, boardCol) == Program.playerBoard.GetShipAt(boardRow, boardCol + 1);
+				bool v = boardRow + 1 < playerBoard.Height && playerBoard.GetShipAt(boardRow, boardCol) == playerBoard.GetShipAt(boardRow + 1, boardCol);
+				bool h = boardCol + 1 < playerBoard.Width && playerBoard.GetShipAt(boardRow, boardCol) == playerBoard.GetShipAt(boardRow, boardCol + 1);
 
 				if (PlayerPlacementState.isPlacing &&
 				    PlayerPlacementState.currentPlacement.Vertical &&
@@ -67,7 +75,7 @@ public class GameRenderer
 				    !(boardRow == PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size - 1 && (row - 1) % 2 is 1) &&
 				    row is not 0)
 				{
-					Console.BackgroundColor = Program.playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+					Console.BackgroundColor = playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
 				else if (PlayerPlacementState.isPlacing &&
 				         !PlayerPlacementState.currentPlacement.Vertical &&
@@ -78,28 +86,28 @@ public class GameRenderer
 				         !(boardCol == PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size - 1 && (col - 1) % 2 is 1) &&
 				         col is not 0)
 				{
-					Console.BackgroundColor = Program.playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+					Console.BackgroundColor = playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
-				else if (Program.playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
+				else if (playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 				         ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
 				         ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && h)))
 				{
 					Console.BackgroundColor = ConsoleColor.DarkGray;
 				}
-				Console.Write(RenderBoardTile(row, col, Program.playerBoard.Shots, Program.playerBoard.Ships));
+				Console.Write(RenderBoardTile(row, col, playerBoard.Shots, playerBoard.Ships));
 				if (Console.BackgroundColor is not ConsoleColor.Black)
 				{
 					Console.BackgroundColor = ConsoleColor.Black;
 				}
 			}
 			Console.Write("  ");
-			for (int col = 0; col < Program.enemyBoard.Width * 2 + 1; col++)
+			for (int col = 0; col < enemyBoard.Width * 2 + 1; col++)
 			{
 				int boardCol = (col - 1) / 2;
-				bool v = boardRow + 1 < Program.enemyBoard.Height && Program.enemyBoard.GetShipAt(boardRow, boardCol) == Program.enemyBoard.GetShipAt(boardRow + 1, boardCol);
-				bool h = boardCol + 1 < Program.enemyBoard.Width && Program.enemyBoard.GetShipAt(boardRow, boardCol) == Program.enemyBoard.GetShipAt(boardRow, boardCol + 1);
+				bool v = boardRow + 1 < enemyBoard.Height && enemyBoard.GetShipAt(boardRow, boardCol) == enemyBoard.GetShipAt(boardRow + 1, boardCol);
+				bool h = boardCol + 1 < enemyBoard.Width && enemyBoard.GetShipAt(boardRow, boardCol) == enemyBoard.GetShipAt(boardRow, boardCol + 1);
 				if (showEnemyShips &&
-				    Program.enemyBoard.GetShipAt(boardRow, boardCol) is not 0 &&
+				    enemyBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 					((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
 					((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && h)))
 				{
@@ -111,7 +119,7 @@ public class GameRenderer
 				{
 					Console.BackgroundColor = ConsoleColor.DarkYellow;
 				}
-				Console.Write(RenderBoardTile(row, col, Program.enemyBoard.Shots, Program.enemyBoard.Ships));
+				Console.Write(RenderBoardTile(row, col, enemyBoard.Shots, enemyBoard.Ships));
 				if (Console.BackgroundColor is not ConsoleColor.Black)
 				{
 					Console.BackgroundColor = ConsoleColor.Black;

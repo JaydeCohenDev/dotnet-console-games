@@ -4,13 +4,18 @@ namespace Battleship;
 
 public class GameOverState
 {
-	public GameOverState()
+	private Board playerBoard, enemyBoard;
+	
+	public GameOverState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard, Board enemyBoard)
 	{
+		this.playerBoard = playerBoard;
+		this.enemyBoard = enemyBoard;
+		
 		Console.Clear();
-		Program.renderer.renderMessage = () =>
+		renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
-			switch ((Program.playerBoard.HasWon(), Program.enemyBoard.HasWon()))
+			switch ((playerBoard.HasWon(), enemyBoard.HasWon()))
 			{
 				case (true, true):
 					Console.WriteLine("  Draw! All ships were sunk.");
@@ -26,7 +31,7 @@ public class GameOverState
 			Console.WriteLine();
 			Console.WriteLine("  Play again [enter] or quit [escape]?");
 		};
-		Program.renderer.RenderMainView(showEnemyShips: true);
-		Program.inputHandler.GetEnterOrEscape();
+		renderer.RenderMainView(showEnemyShips: true);
+		inputHandler.GetEnterOrEscape();
 	}
 }

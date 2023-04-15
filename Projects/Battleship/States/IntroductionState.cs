@@ -4,10 +4,10 @@ namespace Battleship;
 
 public class IntroductionState
 {
-	public IntroductionState()
+	public IntroductionState(GameRenderer renderer)
 	{
 		Console.Clear();
-		Program.renderer.renderMessage = () =>
+		renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  This is a guessing game where you will place your battle ships");

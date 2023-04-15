@@ -1,17 +1,20 @@
 ﻿using System;
 using Battleship;
 
-public static class Program
+public class Program
 {
-	public static Board playerBoard;
-	public static Board enemyBoard;
-	public static InputHandler inputHandler = new ();
-	public static GameRenderer renderer = new ();
+	private static Board playerBoard;
+	private static Board enemyBoard;
+	public static InputHandler inputHandler;
+	public static GameRenderer renderer;
 	
 	public static void Main(string[] args)
 	{
 		playerBoard = new Board(10, 10);
 		enemyBoard = new Board(10, 10);
+
+		renderer = new GameRenderer(playerBoard, enemyBoard);
+		inputHandler = new InputHandler();
 		
 		try
 		{
@@ -20,20 +23,20 @@ public static class Program
 			while (!inputHandler.HasPressedEscape)
 			{
 				// introduction screen
-				new IntroductionState();
+				new IntroductionState(renderer);
 				if (inputHandler.HasPressedEscape) return;
 
 				// ship placement
-				new PlayerPlacementState(playerBoard);
+				new PlayerPlacementState(renderer, inputHandler, playerBoard);
 				if (inputHandler.HasPressedEscape) return;
-				new EnemyPlacementState(enemyBoard);
+				new EnemyPlacementState(renderer, enemyBoard);
 
 				// shooting phase
-				var shootingPhase = new ShootingPhaseState();
+				var shootingPhase = new ShootingPhaseState(renderer, inputHandler, playerBoard, enemyBoard);
 				if (shootingPhase.Run()) return;
 
 				// game over
-				new GameOverState();
+				new GameOverState(renderer, inputHandler, playerBoard, enemyBoard);
 			}
 		}
 		catch (Exception ex)
@@ -43,7 +46,7 @@ public static class Program
 		}
 		finally
 		{
-			new ShutdownState();
+			new ShutdownState(renderer);
 		}
 	}
 }
