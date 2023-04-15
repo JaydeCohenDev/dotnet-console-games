@@ -4,16 +4,17 @@ namespace Battleship;
 
 public class InputHandler
 {
-	public bool hasPressedEscape { get; set; }
+	public bool HasPressedEscape { get; set; }
 	
 	public void GetEnterOrEscape()
 	{
-		GetEnterOrEscape:
-		switch (Console.ReadKey(true).Key)
+		while (true)
 		{
-			case ConsoleKey.Enter: break;
-			case ConsoleKey.Escape: hasPressedEscape = true; break;
-			default: goto GetEnterOrEscape;
+			switch (Console.ReadKey(true).Key)
+			{
+				case ConsoleKey.Enter: return;
+				case ConsoleKey.Escape: HasPressedEscape = true; return;
+			}
 		}
 	}
 }

@@ -17,15 +17,15 @@ public static class Program
 		{
 			renderer.SetupConsole();
 
-			while (!inputHandler.hasPressedEscape)
+			while (!inputHandler.HasPressedEscape)
 			{
 				// introduction screen
 				new IntroductionState();
-				if (inputHandler.hasPressedEscape) return;
+				if (inputHandler.HasPressedEscape) return;
 
 				// ship placement
 				new PlayerPlacementState(playerBoard);
-				if (inputHandler.hasPressedEscape) return;
+				if (inputHandler.HasPressedEscape) return;
 				new EnemyPlacementState(enemyBoard);
 
 				// shooting phase

@@ -70,7 +70,7 @@ public class PlayerPlacementState
 						}
 						break;
 					case ConsoleKey.Escape:
-						Program.inputHandler.hasPressedEscape = true;
+						Program.inputHandler.HasPressedEscape = true;
 						return;
 				}
 			}
