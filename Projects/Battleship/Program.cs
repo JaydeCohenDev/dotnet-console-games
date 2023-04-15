@@ -11,7 +11,7 @@ public static class Program
 	private static Ship[,] enemyBoardShips;
 	private static bool[,] playerBoardShots;
 	private static Ship[,] playerBoardShips;
-	private static (int BufferHeight, int BufferWidth, int WindowHeight, int WindowWidth) consoleSize;
+	private static ConsoleSize consoleSize;
 	private static bool isPlacing;
 	private static (Ship Ship, int Size, int Row, int Column, bool Vertical) currentPlacement;
 	private static bool hasPressedEscape;
@@ -475,9 +475,15 @@ public static class Program
 		}
 	}
 
-	private static (int BufferHeight, int BufferWidth, int WindowHeight, int WindowWidth) ConsoleSize()
+	private static ConsoleSize ConsoleSize()
 	{
-		return (Console.BufferHeight, Console.BufferWidth, Console.WindowHeight, Console.WindowWidth);
+		return new ConsoleSize
+		{
+			BufferHeight = Console.BufferHeight, 
+			BufferWidth = Console.BufferWidth, 
+			WindowHeight = Console.WindowHeight, 
+			WindowWidth = Console.WindowWidth
+		};
 	}
 }
 
