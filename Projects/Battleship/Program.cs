@@ -24,9 +24,9 @@ public static class Program
 				if (inputHandler.hasPressedEscape) return;
 
 				// ship placement
-				new PlayerPlacementState();
+				new PlayerPlacementState(playerBoard);
 				if (inputHandler.hasPressedEscape) return;
-				new EnemyPlacementState();
+				new EnemyPlacementState(enemyBoard);
 
 				// shooting phase
 				var shootingPhase = new ShootingPhaseState();

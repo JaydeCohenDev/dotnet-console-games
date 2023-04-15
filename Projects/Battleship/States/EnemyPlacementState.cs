@@ -6,8 +6,12 @@ namespace Battleship;
 
 public class EnemyPlacementState
 {
-	public EnemyPlacementState()
+	private Board enemyBoard;
+	
+	public EnemyPlacementState(Board enemyBoard)
 	{
+		this.enemyBoard = enemyBoard;
+		
 		RandomizeOffenseShips();
 		Program.renderer.renderMessage = () =>
 		{
@@ -25,19 +29,19 @@ public class EnemyPlacementState
 		{
 			int size = (int)ship.GetTag("size").Value!;
 			ListArray<(int Row, int Column, bool Vertical)> locations = new();
-			for (int row = 0; row < Program.enemyBoard.Height - size; row++)
+			for (int row = 0; row < enemyBoard.Height - size; row++)
 			{
-				for (int col = 0; col < Program.enemyBoard.Width; col++)
+				for (int col = 0; col < enemyBoard.Width; col++)
 				{
 					bool vertical = true;
 					bool horizontal = true;
 					for (int i = 0; i < size; i++)
 					{
-						if (row + size > Program.enemyBoard.Height || Program.enemyBoard.GetShipAt(row + i, col) is not 0)
+						if (row + size > enemyBoard.Height || enemyBoard.GetShipAt(row + i, col) is not 0)
 						{
 							vertical = false;
 						}
-						if (col + size > Program.enemyBoard.Width || Program.enemyBoard.GetShipAt(row, col + i) is not 0)
+						if (col + size > enemyBoard.Width || enemyBoard.GetShipAt(row, col + i) is not 0)
 						{
 							horizontal = false;
 						}
@@ -57,7 +61,7 @@ public class EnemyPlacementState
 			{
 				var row = Row + (Vertical ? i : 0);
 				var col = Column + (!Vertical ? i : 0);
-				Program.enemyBoard.PlaceShip(ship, row, col);
+				enemyBoard.PlaceShip(ship, row, col);
 			}
 		}
 	}

@@ -5,11 +5,13 @@ namespace Battleship;
 
 public class PlayerPlacementState
 {
+	private readonly Board playerBoard;
 	public static bool isPlacing;
 	public static Placement currentPlacement;
 	
-	public PlayerPlacementState()
+	public PlayerPlacementState(Board playerBoard)
 	{
+		this.playerBoard = playerBoard;
 		Console.Clear();
 		PlaceDefenseShips();
 	}
@@ -40,20 +42,20 @@ public class PlayerPlacementState
 						currentPlacement.Row = Math.Max(currentPlacement.Row - 1, 0);
 						break;
 					case ConsoleKey.DownArrow:
-						currentPlacement.Row = Math.Min(currentPlacement.Row + 1, Program.playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column, Program.playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
+						currentPlacement.Row = Math.Min(currentPlacement.Row + 1, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
+						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.LeftArrow:
 						currentPlacement.Column = Math.Max(currentPlacement.Column - 1, 0);
 						break;
 					case ConsoleKey.RightArrow:
-						currentPlacement.Row = Math.Min(currentPlacement.Row, Program.playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column + 1, Program.playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
+						currentPlacement.Row = Math.Min(currentPlacement.Row, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
+						currentPlacement.Column = Math.Min(currentPlacement.Column + 1, playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.Spacebar:
 						currentPlacement.Vertical = !currentPlacement.Vertical;
-						currentPlacement.Row    = Math.Min(currentPlacement.Row, Program.playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column, Program.playerBoard.Width  - (!currentPlacement.Vertical ? size : 1));
+						currentPlacement.Row    = Math.Min(currentPlacement.Row, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
+						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width  - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.Enter:
 						if (Program.playerBoard.IsValidPlacement(currentPlacement))
@@ -62,7 +64,7 @@ public class PlayerPlacementState
 							{
 								var row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
 								var col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
-								Program.playerBoard.PlaceShip(ship, row, col);
+								playerBoard.PlaceShip(ship, row, col);
 							}
 							goto Continue;
 						}
