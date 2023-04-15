@@ -5,10 +5,6 @@ public static class Program
 {
 	public static Board playerBoard;
 	public static Board enemyBoard;
-	public static bool isPlacing;
-	public static Placement currentPlacement;
-	public static GridPoint gridSelection;
-	public static bool isSelecting;
 	public static InputHandler inputHandler = new ();
 	public static GameRenderer renderer = new ();
 	

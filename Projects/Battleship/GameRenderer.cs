@@ -58,27 +58,27 @@ public class GameRenderer
 				bool v = boardRow + 1 < Program.playerBoard.Height && Program.playerBoard.GetShipAt(boardRow, boardCol) == Program.playerBoard.GetShipAt(boardRow + 1, boardCol);
 				bool h = boardCol + 1 < Program.playerBoard.Width && Program.playerBoard.GetShipAt(boardRow, boardCol) == Program.playerBoard.GetShipAt(boardRow, boardCol + 1);
 
-				if (Program.isPlacing &&
-				    Program.currentPlacement.Vertical &&
-				    boardCol == Program.currentPlacement.Column &&
-				    boardRow >= Program.currentPlacement.Row &&
-				    boardRow < Program.currentPlacement.Row + Program.currentPlacement.Size &&
+				if (PlayerPlacementState.isPlacing &&
+				    PlayerPlacementState.currentPlacement.Vertical &&
+				    boardCol == PlayerPlacementState.currentPlacement.Column &&
+				    boardRow >= PlayerPlacementState.currentPlacement.Row &&
+				    boardRow < PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size &&
 				    (col - 1) % 2 is 0 &&
-				    !(boardRow == Program.currentPlacement.Row + Program.currentPlacement.Size - 1 && (row - 1) % 2 is 1) &&
+				    !(boardRow == PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size - 1 && (row - 1) % 2 is 1) &&
 				    row is not 0)
 				{
-					Console.BackgroundColor = Program.playerBoard.IsValidPlacement(Program.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+					Console.BackgroundColor = Program.playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
-				else if (Program.isPlacing &&
-				         !Program.currentPlacement.Vertical &&
-				         boardRow == Program.currentPlacement.Row &&
-				         boardCol >= Program.currentPlacement.Column &&
-				         boardCol < Program.currentPlacement.Column + Program.currentPlacement.Size &&
+				else if (PlayerPlacementState.isPlacing &&
+				         !PlayerPlacementState.currentPlacement.Vertical &&
+				         boardRow == PlayerPlacementState.currentPlacement.Row &&
+				         boardCol >= PlayerPlacementState.currentPlacement.Column &&
+				         boardCol < PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size &&
 				         (row - 1) % 2 is 0 &&
-				         !(boardCol == Program.currentPlacement.Column + Program.currentPlacement.Size - 1 && (col - 1) % 2 is 1) &&
+				         !(boardCol == PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size - 1 && (col - 1) % 2 is 1) &&
 				         col is not 0)
 				{
-					Console.BackgroundColor = Program.playerBoard.IsValidPlacement(Program.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+					Console.BackgroundColor = Program.playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
 				else if (Program.playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 				         ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
@@ -105,7 +105,7 @@ public class GameRenderer
 				{
 					Console.BackgroundColor = ConsoleColor.DarkGray;
 				}
-				else if (Program.isSelecting && Program.gridSelection.Row == boardRow && Program.gridSelection.Column == boardCol &&
+				else if (ShootingPhaseState.isSelecting && ShootingPhaseState.gridSelection.Row == boardRow && ShootingPhaseState.gridSelection.Column == boardCol &&
 				         (row - 1) % 2 is 0 &&
 				         (col - 1) % 2 is 0)
 				{

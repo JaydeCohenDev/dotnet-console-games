@@ -5,9 +5,12 @@ namespace Battleship;
 
 public class ShootingPhaseState
 {
+	public static GridPoint gridSelection;
+	public static bool isSelecting;
+	
 	public bool Run()
 	{
-		Program.gridSelection = new GridPoint(Program.playerBoard.Height / 2, Program.playerBoard.Width / 2);
+		gridSelection = new GridPoint(Program.playerBoard.Height / 2, Program.playerBoard.Width / 2);
 		Console.Clear();
 		Program.renderer.renderMessage = () =>
 		{
@@ -19,7 +22,7 @@ public class ShootingPhaseState
 			Console.WriteLine("  Use arrow keys to aim.");
 			Console.WriteLine("  Use [enter] to fire at the location.");
 		};
-		Program.isSelecting = true;
+		isSelecting = true;
 		while (HasNoWinnerYet())
 		{
 			ChooseOffense();
@@ -28,7 +31,7 @@ public class ShootingPhaseState
 			Program.renderer.RenderMainView();
 		}
 
-		Program.isSelecting = false;
+		isSelecting = false;
 		return false;
 	}
 	
@@ -79,28 +82,28 @@ public class ShootingPhaseState
 			switch (Console.ReadKey(true).Key)
 			{
 				case ConsoleKey.UpArrow:
-					Program.gridSelection.Row = Math.Max(0, Program.gridSelection.Row - 1);
+					gridSelection.Row = Math.Max(0, gridSelection.Row - 1);
 					break;
 				case ConsoleKey.DownArrow:
-					Program.gridSelection.Row = Math.Min(Program.enemyBoard.Height - 1, Program.gridSelection.Row + 1);
+					gridSelection.Row = Math.Min(Program.enemyBoard.Height - 1, gridSelection.Row + 1);
 					break;
 				case ConsoleKey.LeftArrow:
-					Program.gridSelection.Column = Math.Max(0, Program.gridSelection.Column - 1);
+					gridSelection.Column = Math.Max(0, gridSelection.Column - 1);
 					break;
 				case ConsoleKey.RightArrow:
-					Program.gridSelection.Column = Math.Min(Program.enemyBoard.Width - 1, Program.gridSelection.Column + 1);
+					gridSelection.Column = Math.Min(Program.enemyBoard.Width - 1, gridSelection.Column + 1);
 					break;
 				case ConsoleKey.Enter:
-					if (!Program.enemyBoard.HasShotAt(Program.gridSelection.Row, Program.gridSelection.Column))
+					if (!Program.enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
 					{
-						Program.enemyBoard.ShootAt(Program.gridSelection.Row, Program.gridSelection.Column);
-						Program.isPlacing = false;
+						Program.enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
+						PlayerPlacementState.isPlacing = false;
 						return;
 					}
 					break;
 				case ConsoleKey.Escape:
 					Program.inputHandler.hasPressedEscape = true;
-					Program.isPlacing = false;
+					PlayerPlacementState.isPlacing = false;
 					return;
 			}
 		}
