@@ -15,7 +15,7 @@ public static class Program
 	private static bool isPlacing;
 	private static Placement currentPlacement;
 	private static bool hasPressedEscape;
-	private static (int Row, int Column) gridSelection;
+	private static GridPoint gridSelection;
 	private static bool isSelecting;
 	private static Action? renderMessage;
 	
@@ -74,7 +74,7 @@ public static class Program
 				RenderMainView();
 
 				// shooting phase
-				gridSelection = (BoardHeight / 2, BoardWidth / 2);
+				gridSelection = new GridPoint(BoardHeight / 2, BoardWidth / 2);
 				Console.Clear();
 				renderMessage = () =>
 				{
@@ -416,7 +416,7 @@ public static class Program
 				{
 					Console.BackgroundColor = ConsoleColor.DarkGray;
 				}
-				else if (isSelecting && gridSelection == (boardRow, boardCol) &&
+				else if (isSelecting && gridSelection.Row == boardRow && gridSelection.Column == boardCol &&
 					(row - 1) % 2 is 0 &&
 					(col - 1) % 2 is 0)
 				{
