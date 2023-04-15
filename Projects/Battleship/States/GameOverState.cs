@@ -7,7 +7,7 @@ public class GameOverState
 	public GameOverState()
 	{
 		Console.Clear();
-		Program.renderMessage = () =>
+		Program.renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			switch ((Program.playerBoard.HasWon(), Program.enemyBoard.HasWon()))
@@ -26,7 +26,7 @@ public class GameOverState
 			Console.WriteLine();
 			Console.WriteLine("  Play again [enter] or quit [escape]?");
 		};
-		Program.RenderMainView(showEnemyShips: true);
+		Program.renderer.RenderMainView(showEnemyShips: true);
 		Program.inputHandler.GetEnterOrEscape();
 	}
 }

@@ -16,7 +16,7 @@ public class PlayerPlacementState
 		Program.isPlacing = true;
 		foreach (Ship ship in Enum.GetValues<Ship>())
 		{
-			Program.renderMessage = () =>
+			Program.renderer.renderMessage = () =>
 			{
 				Console.WriteLine();
 				Console.WriteLine($"  Place your {ship} on the grid.");
@@ -30,7 +30,7 @@ public class PlayerPlacementState
 			Program.currentPlacement = new Placement(ship, size, 0, 0, true);
 			while (true)
 			{
-				Program.RenderMainView();
+				Program.renderer.RenderMainView();
 				switch (Console.ReadKey(true).Key)
 				{
 					case ConsoleKey.UpArrow:
@@ -53,7 +53,7 @@ public class PlayerPlacementState
 						Program.currentPlacement.Column = Math.Min(Program.currentPlacement.Column, Program.playerBoard.Width  - (!Program.currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.Enter:
-						if (Program.IsValidPlacement())
+						if (Program.playerBoard.IsValidPlacement(Program.currentPlacement))
 						{
 							for (int i = 0; i < Program.currentPlacement.Size; i++)
 							{

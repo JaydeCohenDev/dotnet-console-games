@@ -9,7 +9,7 @@ public class ShootingPhaseState
 	{
 		Program.gridSelection = new GridPoint(Program.playerBoard.Height / 2, Program.playerBoard.Width / 2);
 		Console.Clear();
-		Program.renderMessage = () =>
+		Program.renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  Choose your shots.");
@@ -25,7 +25,7 @@ public class ShootingPhaseState
 			ChooseOffense();
 			if (Program.inputHandler.hasPressedEscape) return true;
 			RandomlyChooseDefense();
-			Program.RenderMainView();
+			Program.renderer.RenderMainView();
 		}
 
 		Program.isSelecting = false;
@@ -75,7 +75,7 @@ public class ShootingPhaseState
 	{
 		while (true)
 		{
-			Program.RenderMainView();
+			Program.renderer.RenderMainView();
 			switch (Console.ReadKey(true).Key)
 			{
 				case ConsoleKey.UpArrow:

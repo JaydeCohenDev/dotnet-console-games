@@ -47,4 +47,18 @@
 		}
 		return true;
 	}
+	
+	public bool IsValidPlacement(Placement placement)
+	{
+		for (int i = 0; i < placement.Size; i++)
+		{
+			var row = placement.Row + (placement.Vertical ? i : 0);
+			var col = placement.Column + (!placement.Vertical ? i : 0);
+			if (GetShipAt(row, col) is not 0)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }

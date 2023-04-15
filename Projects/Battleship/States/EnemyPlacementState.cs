@@ -9,14 +9,14 @@ public class EnemyPlacementState
 	public EnemyPlacementState()
 	{
 		RandomizeOffenseShips();
-		Program.renderMessage = () =>
+		Program.renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  The enemy has placed their ships.");
 			Console.WriteLine();
 			Console.WriteLine("  Press [enter] to continue...");
 		};
-		Program.RenderMainView();
+		Program.renderer.RenderMainView();
 	}
 	
 	private void RandomizeOffenseShips()

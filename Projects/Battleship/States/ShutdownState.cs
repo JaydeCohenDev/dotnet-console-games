@@ -9,6 +9,6 @@ public class ShutdownState
 		Console.CursorVisible = true;
 		Console.ResetColor();
 		Console.Clear();
-		Console.WriteLine(Program.exception?.ToString() ?? "Battleship was closed.");
+		Console.WriteLine(Program.renderer.exception?.ToString() ?? "Battleship was closed.");
 	}
 }

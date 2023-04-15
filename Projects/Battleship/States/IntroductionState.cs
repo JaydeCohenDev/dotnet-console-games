@@ -7,7 +7,7 @@ public class IntroductionState
 	public IntroductionState()
 	{
 		Console.Clear();
-		Program.renderMessage = () =>
+		Program.renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  This is a guessing game where you will place your battle ships");
@@ -19,7 +19,7 @@ public class IntroductionState
 			Console.WriteLine();
 			Console.WriteLine("  Press [enter] to begin...");
 		};
-		Program.RenderMainView();
+		Program.renderer.RenderMainView();
 		Program.inputHandler.GetEnterOrEscape();
 	}
 }
