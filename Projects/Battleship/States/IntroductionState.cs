@@ -20,6 +20,6 @@ public class IntroductionState
 			Console.WriteLine("  Press [enter] to begin...");
 		};
 		Program.RenderMainView();
-		Program.GetEnterOrEscape();
+		Program.inputHandler.GetEnterOrEscape();
 	}
 }

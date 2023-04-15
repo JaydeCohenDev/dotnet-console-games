@@ -23,7 +23,7 @@ public class ShootingPhaseState
 		while (HasNoWinnerYet())
 		{
 			ChooseOffense();
-			if (Program.hasPressedEscape) return true;
+			if (Program.inputHandler.hasPressedEscape) return true;
 			RandomlyChooseDefense();
 			Program.RenderMainView();
 		}
@@ -99,7 +99,7 @@ public class ShootingPhaseState
 					}
 					break;
 				case ConsoleKey.Escape:
-					Program.hasPressedEscape = true;
+					Program.inputHandler.hasPressedEscape = true;
 					Program.isPlacing = false;
 					return;
 			}

@@ -27,6 +27,6 @@ public class GameOverState
 			Console.WriteLine("  Play again [enter] or quit [escape]?");
 		};
 		Program.RenderMainView(showEnemyShips: true);
-		Program.GetEnterOrEscape();
+		Program.inputHandler.GetEnterOrEscape();
 	}
 }

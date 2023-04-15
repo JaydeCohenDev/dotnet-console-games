@@ -5,14 +5,15 @@ public static class Program
 {
 	public static Board playerBoard;
 	public static Board enemyBoard;
-	private static Exception? exception;
+	public static Exception? exception;
 	private static ConsoleSize consoleSize;
 	public static bool isPlacing;
 	public static Placement currentPlacement;
-	public static bool hasPressedEscape;
 	public static GridPoint gridSelection;
 	public static bool isSelecting;
 	public static Action? renderMessage;
+
+	public static InputHandler inputHandler = new ();
 	
 	public static void Main(string[] args)
 	{
@@ -23,15 +24,15 @@ public static class Program
 		{
 			SetupConsole();
 
-			while (!hasPressedEscape)
+			while (!inputHandler.hasPressedEscape)
 			{
 				// introduction screen
 				new IntroductionState();
-				if (hasPressedEscape) return;
+				if (inputHandler.hasPressedEscape) return;
 
 				// ship placement
 				new PlayerPlacementState();
-				if (hasPressedEscape) return;
+				if (inputHandler.hasPressedEscape) return;
 				new EnemyPlacementState();
 
 				// shooting phase
@@ -49,7 +50,7 @@ public static class Program
 		}
 		finally
 		{
-			ShowShutdown();
+			new ShutdownState();
 		}
 
 	}
@@ -60,14 +61,6 @@ public static class Program
 		Console.ForegroundColor = ConsoleColor.White;
 		Console.Clear();
 		consoleSize = ConsoleSize();
-	}
-
-	private static void ShowShutdown()
-	{
-		Console.CursorVisible = true;
-		Console.ResetColor();
-		Console.Clear();
-		Console.WriteLine(exception?.ToString() ?? "Battleship was closed.");
 	}
 
 	public static bool IsValidPlacement()
@@ -210,16 +203,7 @@ public static class Program
 		};
 	}
 
-	public static void GetEnterOrEscape()
-	{
-	GetEnterOrEscape:
-		switch (Console.ReadKey(true).Key)
-		{
-			case ConsoleKey.Enter: break;
-			case ConsoleKey.Escape: hasPressedEscape = true; break;
-			default: goto GetEnterOrEscape;
-		}
-	}
+	
 
 	private static ConsoleSize ConsoleSize()
 	{
