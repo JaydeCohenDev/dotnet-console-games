@@ -4,13 +4,19 @@ using Towel.DataStructures;
 
 public static class Program
 {
+	private static Board playerBoard, enemyBoard;
+	
 	private static Exception? exception;
+	
+	/*
 	private const int BoardHeight = 10;
 	private const int BoardWidth = 10;
 	private static bool[,] enemyBoardShots;
 	private static Ship[,] enemyBoardShips;
 	private static bool[,] playerBoardShots;
 	private static Ship[,] playerBoardShips;
+	*/
+	
 	private static ConsoleSize consoleSize;
 	private static bool isPlacing;
 	private static Placement currentPlacement;
@@ -21,6 +27,9 @@ public static class Program
 	
 	public static void Main(string[] args)
 	{
+		playerBoard = new Board(10, 10);
+		enemyBoard = new Board(10, 10);
+		
 		try
 		{
 			Console.BackgroundColor = ConsoleColor.Black;
@@ -30,11 +39,6 @@ public static class Program
 
 			while (!hasPressedEscape)
 			{
-				enemyBoardShots = new bool[BoardHeight, BoardWidth];
-				enemyBoardShips = new Ship[BoardHeight, BoardWidth];
-				playerBoardShots = new bool[BoardHeight, BoardWidth];
-				playerBoardShips = new Ship[BoardHeight, BoardWidth];
-
 				// introduction screen
 				Console.Clear();
 				renderMessage = () =>
@@ -74,7 +78,7 @@ public static class Program
 				RenderMainView();
 
 				// shooting phase
-				gridSelection = new GridPoint(BoardHeight / 2, BoardWidth / 2);
+				gridSelection = new GridPoint(playerBoard.Height / 2, playerBoard.Width / 2);
 				Console.Clear();
 				renderMessage = () =>
 				{
@@ -87,7 +91,7 @@ public static class Program
 					Console.WriteLine("  Use [enter] to fire at the location.");
 				};
 				isSelecting = true;
-				while (!Won(playerBoardShips, playerBoardShots) && !Won(enemyBoardShips, enemyBoardShots))
+				while (!playerBoard.HasWon() && !enemyBoard.HasWon())
 				{
 					ChooseOffense();
 					if (hasPressedEscape)
@@ -104,7 +108,7 @@ public static class Program
 				renderMessage = () =>
 				{
 					Console.WriteLine();
-					switch ((Won(playerBoardShips, playerBoardShots), Won(enemyBoardShips, enemyBoardShots)))
+					switch ((playerBoard.HasWon(), enemyBoard.HasWon()))
 					{
 						case (true, true):
 							Console.WriteLine("  Draw! All ships were sunk.");
@@ -165,27 +169,29 @@ public static class Program
 						currentPlacement.Row = Math.Max(currentPlacement.Row - 1, 0);
 						break;
 					case ConsoleKey.DownArrow:
-						currentPlacement.Row = Math.Min(currentPlacement.Row + 1, BoardHeight - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column, BoardWidth - (!currentPlacement.Vertical ? size : 1));
+						currentPlacement.Row = Math.Min(currentPlacement.Row + 1, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
+						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.LeftArrow:
 						currentPlacement.Column = Math.Max(currentPlacement.Column - 1, 0);
 						break;
 					case ConsoleKey.RightArrow:
-						currentPlacement.Row = Math.Min(currentPlacement.Row, BoardHeight - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column + 1, BoardWidth - (!currentPlacement.Vertical ? size : 1));
+						currentPlacement.Row = Math.Min(currentPlacement.Row, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
+						currentPlacement.Column = Math.Min(currentPlacement.Column + 1, playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.Spacebar:
 						currentPlacement.Vertical = !currentPlacement.Vertical;
-						currentPlacement.Row    = Math.Min(currentPlacement.Row, BoardHeight - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column, BoardWidth  - (!currentPlacement.Vertical ? size : 1));
+						currentPlacement.Row    = Math.Min(currentPlacement.Row, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
+						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width  - (!currentPlacement.Vertical ? size : 1));
 						break;
 					case ConsoleKey.Enter:
 						if (IsValidPlacement())
 						{
 							for (int i = 0; i < currentPlacement.Size; i++)
 							{
-								playerBoardShips[currentPlacement.Row + (currentPlacement.Vertical ? i : 0), currentPlacement.Column + (!currentPlacement.Vertical ? i : 0)] = ship;
+								var row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
+								var col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
+								playerBoard.PlaceShip(ship, row, col);
 							}
 							goto Continue;
 						}
@@ -212,18 +218,18 @@ public static class Program
 					gridSelection.Row = Math.Max(0, gridSelection.Row - 1);
 					break;
 				case ConsoleKey.DownArrow:
-					gridSelection.Row = Math.Min(BoardHeight - 1, gridSelection.Row + 1);
+					gridSelection.Row = Math.Min(enemyBoard.Height - 1, gridSelection.Row + 1);
 					break;
 				case ConsoleKey.LeftArrow:
 					gridSelection.Column = Math.Max(0, gridSelection.Column - 1);
 					break;
 				case ConsoleKey.RightArrow:
-					gridSelection.Column = Math.Min(BoardWidth - 1, gridSelection.Column + 1);
+					gridSelection.Column = Math.Min(enemyBoard.Width - 1, gridSelection.Column + 1);
 					break;
 				case ConsoleKey.Enter:
-					if (!enemyBoardShots[gridSelection.Row, gridSelection.Column])
+					if (!enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
 					{
-						enemyBoardShots[gridSelection.Row, gridSelection.Column] = true;
+						enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
 						isPlacing = false;
 						return;
 					}
@@ -240,13 +246,13 @@ public static class Program
 	{
 		if (Random.Shared.Next(9) is 0)
 		{
-			for (int r = 0; r < BoardHeight; r++)
+			for (int r = 0; r < playerBoard.Height; r++)
 			{
-				for (int c = 0; c < BoardHeight; c++)
+				for (int c = 0; c < playerBoard.Height; c++)
 				{
-					if (!playerBoardShots[r, c] && playerBoardShips[r, c] is not 0)
+					if (!playerBoard.HasShotAt(r, c) && playerBoard.GetShipAt(r, c) is not 0)
 					{
-						playerBoardShots[r, c] = true;
+						playerBoard.ShootAt(r, c);
 						return;
 					}
 				}
@@ -255,18 +261,18 @@ public static class Program
 		else
 		{
 			ListArray<(int Row, int Column)> openLocations = new();
-			for (int r = 0; r < BoardHeight; r++)
+			for (int r = 0; r < playerBoard.Height; r++)
 			{
-				for (int c = 0; c < BoardHeight; c++)
+				for (int c = 0; c < playerBoard.Height; c++)
 				{
-					if (!playerBoardShots[r, c])
+					if (!playerBoard.HasShotAt(r, c))
 					{
 						openLocations.Add((r, c));
 					}
 				}
 			}
 			var (row, column) = openLocations[Random.Shared.Next(openLocations.Count)];
-			playerBoardShots[row, column] = true;
+			playerBoard.ShootAt(row, column);
 		}
 	}
 
@@ -274,7 +280,9 @@ public static class Program
 	{
 		for (int i = 0; i < currentPlacement.Size; i++)
 		{
-			if (playerBoardShips[currentPlacement.Row + (currentPlacement.Vertical ? i : 0), currentPlacement.Column + (!currentPlacement.Vertical ? i : 0)] is not 0)
+			var row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
+			var col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
+			if (playerBoard.GetShipAt(row, col) is not 0)
 			{
 				return false;
 			}
@@ -288,19 +296,19 @@ public static class Program
 		{
 			int size = (int)ship.GetTag("size").Value!;
 			ListArray<(int Row, int Column, bool Vertical)> locations = new();
-			for (int row = 0; row < BoardHeight - size; row++)
+			for (int row = 0; row < enemyBoard.Height - size; row++)
 			{
-				for (int col = 0; col < BoardWidth; col++)
+				for (int col = 0; col < enemyBoard.Width; col++)
 				{
 					bool vertical = true;
 					bool horizontal = true;
 					for (int i = 0; i < size; i++)
 					{
-						if (row + size > BoardHeight || enemyBoardShips[row + i, col] is not 0)
+						if (row + size > enemyBoard.Height || enemyBoard.GetShipAt(row + i, col) is not 0)
 						{
 							vertical = false;
 						}
-						if (col + size > BoardWidth || enemyBoardShips[row, col + i] is not 0)
+						if (col + size > enemyBoard.Width || enemyBoard.GetShipAt(row, col + i) is not 0)
 						{
 							horizontal = false;
 						}
@@ -318,24 +326,11 @@ public static class Program
 			var (Row, Column, Vertical) = locations[Random.Shared.Next(0, locations.Count)];
 			for (int i = 0; i < size; i++)
 			{
-				enemyBoardShips[Row + (Vertical ? i : 0), Column + (!Vertical ? i : 0)] = ship;
+				var row = Row + (Vertical ? i : 0);
+				var col = Column + (!Vertical ? i : 0);
+				enemyBoard.PlaceShip(ship, row, col);
 			}
 		}
-	}
-
-	private static bool Won(Ship[,] shipBoard, bool[,] shotBoard)
-	{
-		for (int row = 0; row < BoardHeight; row++)
-		{
-			for (int col = 0; col < BoardWidth; col++)
-			{
-				if (shipBoard[row, col] is not 0 && !shotBoard[row, col])
-				{
-					return false;
-				}
-			}
-		}
-		return true;
 	}
 
 	private static void RenderMainView(bool showEnemyShips = false)
@@ -359,15 +354,15 @@ public static class Program
 		Console.WriteLine();
 		Console.WriteLine("  Battleship");
 		Console.WriteLine();
-		for (int row = 0; row < BoardHeight * 2 + 1; row++)
+		for (int row = 0; row < playerBoard.Height * 2 + 1; row++)
 		{
 			int boardRow = (row - 1) / 2;
 			Console.Write("  ");
-			for (int col = 0; col < BoardWidth * 2 + 1; col++)
+			for (int col = 0; col < playerBoard.Width * 2 + 1; col++)
 			{
 				int boardCol = (col - 1) / 2;
-				bool v = boardRow + 1 < BoardHeight && playerBoardShips[boardRow, boardCol] == playerBoardShips[boardRow + 1, boardCol];
-				bool h = boardCol + 1 < BoardWidth && playerBoardShips[boardRow, boardCol] == playerBoardShips[boardRow, boardCol + 1];
+				bool v = boardRow + 1 < playerBoard.Height && playerBoard.GetShipAt(boardRow, boardCol) == playerBoard.GetShipAt(boardRow + 1, boardCol);
+				bool h = boardCol + 1 < playerBoard.Width && playerBoard.GetShipAt(boardRow, boardCol) == playerBoard.GetShipAt(boardRow, boardCol + 1);
 
 				if (isPlacing &&
 					currentPlacement.Vertical &&
@@ -391,26 +386,26 @@ public static class Program
 				{
 					Console.BackgroundColor = IsValidPlacement() ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
-				else if (playerBoardShips[boardRow, boardCol] is not 0 &&
+				else if (playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 					((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
 					((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && h)))
 				{
 					Console.BackgroundColor = ConsoleColor.DarkGray;
 				}
-				Console.Write(RenderBoardTile(row, col, playerBoardShots, playerBoardShips));
+				Console.Write(RenderBoardTile(row, col, playerBoard.Shots, playerBoard.Ships));
 				if (Console.BackgroundColor is not ConsoleColor.Black)
 				{
 					Console.BackgroundColor = ConsoleColor.Black;
 				}
 			}
 			Console.Write("  ");
-			for (int col = 0; col < BoardWidth * 2 + 1; col++)
+			for (int col = 0; col < enemyBoard.Width * 2 + 1; col++)
 			{
 				int boardCol = (col - 1) / 2;
-				bool v = boardRow + 1 < BoardHeight && enemyBoardShips[boardRow, boardCol] == enemyBoardShips[boardRow + 1, boardCol];
-				bool h = boardCol + 1 < BoardWidth && enemyBoardShips[boardRow, boardCol] == enemyBoardShips[boardRow, boardCol + 1];
+				bool v = boardRow + 1 < enemyBoard.Height && enemyBoard.GetShipAt(boardRow, boardCol) == enemyBoard.GetShipAt(boardRow + 1, boardCol);
+				bool h = boardCol + 1 < enemyBoard.Width && enemyBoard.GetShipAt(boardRow, boardCol) == enemyBoard.GetShipAt(boardRow, boardCol + 1);
 				if (showEnemyShips &&
-					enemyBoardShips[boardRow, boardCol] is not 0 &&
+					enemyBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 					((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
 					((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && h)))
 				{
@@ -422,7 +417,7 @@ public static class Program
 				{
 					Console.BackgroundColor = ConsoleColor.DarkYellow;
 				}
-				Console.Write(RenderBoardTile(row, col, enemyBoardShots, enemyBoardShips));
+				Console.Write(RenderBoardTile(row, col, enemyBoard.Shots, enemyBoard.Ships));
 				if (Console.BackgroundColor is not ConsoleColor.Black)
 				{
 					Console.BackgroundColor = ConsoleColor.Black;
@@ -440,8 +435,8 @@ public static class Program
 		const string hit = "##";
 		const string miss = "XX";
 		const string open = "  ";
-		const int fullWidth = BoardWidth * 2;
-		const int fullHeight = BoardHeight * 2;
+		const int fullWidth = 10 * 2;
+		const int fullHeight = 10 * 2;
 		return (r: row, c: col, row % 2, col % 2) switch
 		{
 			(0, 0, _, _) => "┌",
