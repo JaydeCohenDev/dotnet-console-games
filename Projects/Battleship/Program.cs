@@ -1,18 +1,18 @@
 ﻿using System;
-using Towel;
-using Towel.DataStructures;
+using Battleship;
 
 public static class Program
 {
-	private static Board playerBoard, enemyBoard;
+	public static Board playerBoard;
+	public static Board enemyBoard;
 	private static Exception? exception;
 	private static ConsoleSize consoleSize;
-	private static bool isPlacing;
-	private static Placement currentPlacement;
-	private static bool hasPressedEscape;
-	private static GridPoint gridSelection;
-	private static bool isSelecting;
-	private static Action? renderMessage;
+	public static bool isPlacing;
+	public static Placement currentPlacement;
+	public static bool hasPressedEscape;
+	public static GridPoint gridSelection;
+	public static bool isSelecting;
+	public static Action? renderMessage;
 	
 	public static void Main(string[] args)
 	{
@@ -26,19 +26,20 @@ public static class Program
 			while (!hasPressedEscape)
 			{
 				// introduction screen
-				ShowIntroductionScreen();
+				new IntroductionState();
 				if (hasPressedEscape) return;
 
 				// ship placement
-				EnterPlayerPlacementMode();
+				new PlayerPlacementState();
 				if (hasPressedEscape) return;
-				EnterEnemyPlacementMode();
+				new EnemyPlacementState();
 
 				// shooting phase
-				if (RunShootingPhase()) return;
+				var shootingPhase = new ShootingPhaseState();
+				if (shootingPhase.Run()) return;
 
 				// game over
-				ShowGameOver();
+				new GameOverState();
 			}
 		}
 		catch (Exception ex)
@@ -51,33 +52,6 @@ public static class Program
 			ShowShutdown();
 		}
 
-	}
-
-	private static bool RunShootingPhase()
-	{
-		gridSelection = new GridPoint(playerBoard.Height / 2, playerBoard.Width / 2);
-		Console.Clear();
-		renderMessage = () =>
-		{
-			Console.WriteLine();
-			Console.WriteLine("  Choose your shots.");
-			Console.WriteLine();
-			Console.WriteLine("  Hit: ##");
-			Console.WriteLine("  Miss: XX");
-			Console.WriteLine("  Use arrow keys to aim.");
-			Console.WriteLine("  Use [enter] to fire at the location.");
-		};
-		isSelecting = true;
-		while (!playerBoard.HasWon() && !enemyBoard.HasWon())
-		{
-			ChooseOffense();
-			if (hasPressedEscape) return true;
-			RandomlyChooseDefense();
-			RenderMainView();
-		}
-
-		isSelecting = false;
-		return false;
 	}
 
 	private static void SetupConsole()
@@ -96,205 +70,7 @@ public static class Program
 		Console.WriteLine(exception?.ToString() ?? "Battleship was closed.");
 	}
 
-	private static void ShowGameOver()
-	{
-		Console.Clear();
-		renderMessage = () =>
-		{
-			Console.WriteLine();
-			switch ((playerBoard.HasWon(), enemyBoard.HasWon()))
-			{
-				case (true, true):
-					Console.WriteLine("  Draw! All ships were sunk.");
-					break;
-				case (false, true):
-					Console.WriteLine("  You Win! You sunk all the enemy ships.");
-					break;
-				case (true, false):
-					Console.WriteLine("  You Lose! The enemy sunk all your ships.");
-					break;
-			}
-
-			Console.WriteLine();
-			Console.WriteLine("  Play again [enter] or quit [escape]?");
-		};
-		RenderMainView(showEnemyShips: true);
-		GetEnterOrEscape();
-	}
-
-	private static void EnterEnemyPlacementMode()
-	{
-		RandomizeOffenseShips();
-		renderMessage = () =>
-		{
-			Console.WriteLine();
-			Console.WriteLine("  The enemy has placed their ships.");
-			Console.WriteLine();
-			Console.WriteLine("  Press [enter] to continue...");
-		};
-		RenderMainView();
-	}
-
-	private static void EnterPlayerPlacementMode()
-	{
-		Console.Clear();
-		PlaceDefenseShips();
-	}
-
-	private static void ShowIntroductionScreen()
-	{
-		Console.Clear();
-		renderMessage = () =>
-		{
-			Console.WriteLine();
-			Console.WriteLine("  This is a guessing game where you will place your battle ships");
-			Console.WriteLine("  on a grid, and then shoot locations of the enemy grid trying");
-			Console.WriteLine("  to find and sink all of their ships.The first player to sink");
-			Console.WriteLine("  all the enemy ships wins.");
-			Console.WriteLine();
-			Console.WriteLine("  Press [escape] at any time to close the game.");
-			Console.WriteLine();
-			Console.WriteLine("  Press [enter] to begin...");
-		};
-		RenderMainView();
-		GetEnterOrEscape();
-	}
-
-
-	private static void PlaceDefenseShips()
-	{
-		isPlacing = true;
-		foreach (Ship ship in Enum.GetValues<Ship>())
-		{
-			renderMessage = () =>
-			{
-				Console.WriteLine();
-				Console.WriteLine($"  Place your {ship} on the grid.");
-				Console.WriteLine();
-				Console.WriteLine("  Use arrow keys to move the ship.");
-				Console.WriteLine("  Use [spacebar] to rotate the ship.");
-				Console.WriteLine("  Use [enter] to place the ship in a valid location.");
-			};
-
-			int size = (int)ship.GetTag("size").Value!;
-			currentPlacement = new Placement(ship, size, 0, 0, true);
-			while (true)
-			{
-				RenderMainView();
-				switch (Console.ReadKey(true).Key)
-				{
-					case ConsoleKey.UpArrow:
-						currentPlacement.Row = Math.Max(currentPlacement.Row - 1, 0);
-						break;
-					case ConsoleKey.DownArrow:
-						currentPlacement.Row = Math.Min(currentPlacement.Row + 1, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
-						break;
-					case ConsoleKey.LeftArrow:
-						currentPlacement.Column = Math.Max(currentPlacement.Column - 1, 0);
-						break;
-					case ConsoleKey.RightArrow:
-						currentPlacement.Row = Math.Min(currentPlacement.Row, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column + 1, playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
-						break;
-					case ConsoleKey.Spacebar:
-						currentPlacement.Vertical = !currentPlacement.Vertical;
-						currentPlacement.Row    = Math.Min(currentPlacement.Row, playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-						currentPlacement.Column = Math.Min(currentPlacement.Column, playerBoard.Width  - (!currentPlacement.Vertical ? size : 1));
-						break;
-					case ConsoleKey.Enter:
-						if (IsValidPlacement())
-						{
-							for (int i = 0; i < currentPlacement.Size; i++)
-							{
-								var row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
-								var col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
-								playerBoard.PlaceShip(ship, row, col);
-							}
-							goto Continue;
-						}
-						break;
-					case ConsoleKey.Escape:
-						hasPressedEscape = true;
-						return;
-				}
-			}
-		Continue:
-			continue;
-		}
-		isPlacing = false;
-	}
-
-	private static void ChooseOffense()
-	{
-		while (true)
-		{
-			RenderMainView();
-			switch (Console.ReadKey(true).Key)
-			{
-				case ConsoleKey.UpArrow:
-					gridSelection.Row = Math.Max(0, gridSelection.Row - 1);
-					break;
-				case ConsoleKey.DownArrow:
-					gridSelection.Row = Math.Min(enemyBoard.Height - 1, gridSelection.Row + 1);
-					break;
-				case ConsoleKey.LeftArrow:
-					gridSelection.Column = Math.Max(0, gridSelection.Column - 1);
-					break;
-				case ConsoleKey.RightArrow:
-					gridSelection.Column = Math.Min(enemyBoard.Width - 1, gridSelection.Column + 1);
-					break;
-				case ConsoleKey.Enter:
-					if (!enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
-					{
-						enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
-						isPlacing = false;
-						return;
-					}
-					break;
-				case ConsoleKey.Escape:
-					hasPressedEscape = true;
-					isPlacing = false;
-					return;
-			}
-		}
-	}
-
-	private static void RandomlyChooseDefense()
-	{
-		if (Random.Shared.Next(9) is 0)
-		{
-			for (int r = 0; r < playerBoard.Height; r++)
-			{
-				for (int c = 0; c < playerBoard.Height; c++)
-				{
-					if (!playerBoard.HasShotAt(r, c) && playerBoard.GetShipAt(r, c) is not 0)
-					{
-						playerBoard.ShootAt(r, c);
-						return;
-					}
-				}
-			}
-		}
-		else
-		{
-			ListArray<(int Row, int Column)> openLocations = new();
-			for (int r = 0; r < playerBoard.Height; r++)
-			{
-				for (int c = 0; c < playerBoard.Height; c++)
-				{
-					if (!playerBoard.HasShotAt(r, c))
-					{
-						openLocations.Add((r, c));
-					}
-				}
-			}
-			var (row, column) = openLocations[Random.Shared.Next(openLocations.Count)];
-			playerBoard.ShootAt(row, column);
-		}
-	}
-
-	private static bool IsValidPlacement()
+	public static bool IsValidPlacement()
 	{
 		for (int i = 0; i < currentPlacement.Size; i++)
 		{
@@ -308,50 +84,7 @@ public static class Program
 		return true;
 	}
 
-	private static void RandomizeOffenseShips()
-	{
-		foreach (Ship ship in Enum.GetValues<Ship>())
-		{
-			int size = (int)ship.GetTag("size").Value!;
-			ListArray<(int Row, int Column, bool Vertical)> locations = new();
-			for (int row = 0; row < enemyBoard.Height - size; row++)
-			{
-				for (int col = 0; col < enemyBoard.Width; col++)
-				{
-					bool vertical = true;
-					bool horizontal = true;
-					for (int i = 0; i < size; i++)
-					{
-						if (row + size > enemyBoard.Height || enemyBoard.GetShipAt(row + i, col) is not 0)
-						{
-							vertical = false;
-						}
-						if (col + size > enemyBoard.Width || enemyBoard.GetShipAt(row, col + i) is not 0)
-						{
-							horizontal = false;
-						}
-					}
-					if (vertical)
-					{
-						locations.Add((row, col, true));
-					}
-					if (horizontal)
-					{
-						locations.Add((row, col, false));
-					}
-				}
-			}
-			var (Row, Column, Vertical) = locations[Random.Shared.Next(0, locations.Count)];
-			for (int i = 0; i < size; i++)
-			{
-				var row = Row + (Vertical ? i : 0);
-				var col = Column + (!Vertical ? i : 0);
-				enemyBoard.PlaceShip(ship, row, col);
-			}
-		}
-	}
-
-	private static void RenderMainView(bool showEnemyShips = false)
+	public static void RenderMainView(bool showEnemyShips = false)
 	{
 		Console.CursorVisible = false;
 		if (OperatingSystem.IsWindows() && Console.BufferHeight != Console.WindowHeight)
@@ -477,7 +210,7 @@ public static class Program
 		};
 	}
 
-	private static void GetEnterOrEscape()
+	public static void GetEnterOrEscape()
 	{
 	GetEnterOrEscape:
 		switch (Console.ReadKey(true).Key)
