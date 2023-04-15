@@ -13,7 +13,7 @@ public static class Program
 	private static Ship[,] playerBoardShips;
 	private static ConsoleSize consoleSize;
 	private static bool isPlacing;
-	private static (Ship Ship, int Size, int Row, int Column, bool Vertical) currentPlacement;
+	private static Placement currentPlacement;
 	private static bool hasPressedEscape;
 	private static (int Row, int Column) gridSelection;
 	private static bool isSelecting;
@@ -155,7 +155,7 @@ public static class Program
 			};
 
 			int size = (int)ship.GetTag("size").Value!;
-			currentPlacement = (ship, size, 0, 0, true);
+			currentPlacement = new Placement(ship, size, 0, 0, true);
 			while (true)
 			{
 				RenderMainView();
