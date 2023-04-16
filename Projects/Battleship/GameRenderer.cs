@@ -16,7 +16,7 @@ public class GameRenderer
 		this.enemyBoard = enemyBoard;
 	}
 	
-	private ConsoleSize ConsoleSize()
+	private ConsoleSize GetConsoleSize()
 	{
 		return new ConsoleSize
 		{
@@ -32,25 +32,13 @@ public class GameRenderer
 		Console.BackgroundColor = ConsoleColor.Black;
 		Console.ForegroundColor = ConsoleColor.White;
 		Console.Clear();
-		consoleSize = ConsoleSize();
+		consoleSize = GetConsoleSize();
 	}
 	
 	public void RenderMainView(bool showEnemyShips = false)
 	{
 		Console.CursorVisible = false;
-		if (OperatingSystem.IsWindows() && Console.BufferHeight != Console.WindowHeight)
-		{
-			Console.BufferHeight = Console.WindowHeight;
-		}
-		if (OperatingSystem.IsWindows() && Console.BufferWidth != Console.WindowWidth)
-		{
-			Console.BufferWidth = Console.WindowWidth;
-		}
-		if (consoleSize != ConsoleSize())
-		{
-			Console.Clear();
-			consoleSize = ConsoleSize();
-		}
+		ValidateConsoleSize();
 
 		Console.SetCursorPosition(0, 0);
 		Console.WriteLine();
@@ -131,7 +119,26 @@ public class GameRenderer
 
 		
 	}
-	
+
+	private void ValidateConsoleSize()
+	{
+		if (OperatingSystem.IsWindows() && Console.BufferHeight != Console.WindowHeight)
+		{
+			Console.BufferHeight = Console.WindowHeight;
+		}
+
+		if (OperatingSystem.IsWindows() && Console.BufferWidth != Console.WindowWidth)
+		{
+			Console.BufferWidth = Console.WindowWidth;
+		}
+
+		if (consoleSize != GetConsoleSize())
+		{
+			Console.Clear();
+			consoleSize = GetConsoleSize();
+		}
+	}
+
 	private string RenderBoardTile(int row, int col, bool[,] shots, Ship[,] ships)
 	{
 		const string hit = "##";
