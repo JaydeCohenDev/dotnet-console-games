@@ -1,7 +1,9 @@
-﻿public struct Placement
+﻿namespace Battleship;
+
+public struct Placement
 {
 	public Ship Ship;
-	public int Size;
+	public readonly int Size;
 	public int Row;
 	public int Column;
 	public bool Vertical;

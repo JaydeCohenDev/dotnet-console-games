@@ -1,9 +1,11 @@
-﻿public class Board
+﻿namespace Battleship;
+
+public class Board
 {
-	public int Width;
-	public int Height;
-	public bool[,] Shots;
-	public Ship[,] Ships;
+	public readonly int Width;
+	public readonly int Height;
+	public readonly bool[,] Shots;
+	public readonly Ship[,] Ships;
 	
 	public Board(int width, int height)
 	{
@@ -52,8 +54,8 @@
 	{
 		for (int i = 0; i < placement.Size; i++)
 		{
-			var row = placement.Row + (placement.Vertical ? i : 0);
-			var col = placement.Column + (!placement.Vertical ? i : 0);
+			int row = placement.Row + (placement.Vertical ? i : 0);
+			int col = placement.Column + (!placement.Vertical ? i : 0);
 			if (GetShipAt(row, col) is not 0)
 			{
 				return false;

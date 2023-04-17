@@ -1,5 +1,7 @@
 ﻿using Towel;
 
+namespace Battleship;
+
 public enum Ship
 {
 	[Tag("size", 5)] Carrier = 1,

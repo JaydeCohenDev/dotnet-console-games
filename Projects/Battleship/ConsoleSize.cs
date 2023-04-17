@@ -1,13 +1,15 @@
 ﻿using System;
 
+namespace Battleship;
+
 public struct ConsoleSize
 {
 	public int BufferHeight;
 	public int BufferWidth;
 	public int WindowHeight;
 	public int WindowWidth;
-	
-	public bool Equals(ConsoleSize other)
+
+	private bool Equals(ConsoleSize other)
 	{
 		return BufferHeight == other.BufferHeight && BufferWidth == other.BufferWidth && WindowHeight == other.WindowHeight && WindowWidth == other.WindowWidth;
 	}

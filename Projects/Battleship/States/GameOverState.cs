@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Battleship;
+namespace Battleship.States;
 
 public class GameOverState
 {

@@ -1,5 +1,7 @@
 ﻿using System;
 
+namespace Battleship;
+
 public struct GridPoint
 {
 	public int Row;
@@ -11,7 +13,7 @@ public struct GridPoint
 		Column = column;
 	}
 
-	public bool Equals(GridPoint other)
+	private bool Equals(GridPoint other)
 	{
 		return Row == other.Row && Column == other.Column;
 	}
