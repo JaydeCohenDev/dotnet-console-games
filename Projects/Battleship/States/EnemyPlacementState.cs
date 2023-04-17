@@ -13,7 +13,7 @@ public class EnemyPlacementState
 		_enemyBoard = enemyBoard;
 		
 		RandomizeOffenseShips();
-		renderer.renderMessage = () =>
+		renderer.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  The enemy has placed their ships.");

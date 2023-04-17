@@ -42,7 +42,7 @@ public class PlayerPlacementState
 
 	private void UpdateRenderMessage(Ship ship)
 	{
-		_renderer.renderMessage = () =>
+		_renderer.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine($"  Place your {ship} on the grid.");

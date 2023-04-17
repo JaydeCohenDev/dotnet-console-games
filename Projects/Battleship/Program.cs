@@ -9,6 +9,7 @@ public class Program
 	private readonly Board _enemyBoard;
 	private readonly InputHandler _inputHandler;
 	private readonly GameRenderer _renderer;
+	private Exception? _exception;
 	
 	public static void Main(string[] args)
 	{
@@ -33,12 +34,12 @@ public class Program
 		}
 		catch (Exception ex)
 		{
-			_renderer.exception = ex;
+			_exception = ex;
 			throw;
 		}
 		finally
 		{
-			new ShutdownState(_renderer);
+			new ShutdownState(_exception);
 		}
 	}
 

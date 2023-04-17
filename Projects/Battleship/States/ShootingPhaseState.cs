@@ -24,7 +24,7 @@ public class ShootingPhaseState
 	{
 		gridSelection = new GridPoint(_playerBoard.Height / 2, _playerBoard.Width / 2);
 		Console.Clear();
-		_renderer.renderMessage = () =>
+		_renderer.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  Choose your shots.");

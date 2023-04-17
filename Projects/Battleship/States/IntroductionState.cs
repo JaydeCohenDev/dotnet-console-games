@@ -7,7 +7,7 @@ public class IntroductionState
 	public IntroductionState(GameRenderer renderer, InputHandler inputHandler)
 	{
 		Console.Clear();
-		renderer.renderMessage = () =>
+		renderer.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  This is a guessing game where you will place your battle ships");

@@ -12,7 +12,7 @@ public class GameOverState
 		this.enemyBoard = enemyBoard;
 		
 		Console.Clear();
-		renderer.renderMessage = () =>
+		renderer.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			switch ((playerBoard.HasWon(), enemyBoard.HasWon()))

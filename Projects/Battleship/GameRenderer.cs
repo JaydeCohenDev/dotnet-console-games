@@ -5,16 +5,16 @@ namespace Battleship;
 
 public class GameRenderer
 {
-	public Action? renderMessage;
-	public Exception? exception;
-	private ConsoleSize consoleSize;
+	public Action? RenderMessage;
+	private ConsoleSize _consoleSize;
 
-	private Board playerBoard, enemyBoard;
-	
+	private readonly Board _playerBoard;
+	private readonly Board _enemyBoard;
+
 	public GameRenderer(Board playerBoard, Board enemyBoard)
 	{
-		this.playerBoard = playerBoard;
-		this.enemyBoard = enemyBoard;
+		_playerBoard = playerBoard;
+		_enemyBoard = enemyBoard;
 	}
 	
 	private ConsoleSize GetConsoleSize()
@@ -33,7 +33,7 @@ public class GameRenderer
 		Console.BackgroundColor = ConsoleColor.Black;
 		Console.ForegroundColor = ConsoleColor.White;
 		Console.Clear();
-		consoleSize = GetConsoleSize();
+		_consoleSize = GetConsoleSize();
 	}
 	
 	public void RenderMainView(bool showEnemyShips = false)
@@ -45,15 +45,15 @@ public class GameRenderer
 		Console.WriteLine();
 		Console.WriteLine("  Battleship");
 		Console.WriteLine();
-		for (int row = 0; row < playerBoard.Height * 2 + 1; row++)
+		for (int row = 0; row < _playerBoard.Height * 2 + 1; row++)
 		{
 			int boardRow = (row - 1) / 2;
 			Console.Write("  ");
-			for (int col = 0; col < playerBoard.Width * 2 + 1; col++)
+			for (int col = 0; col < _playerBoard.Width * 2 + 1; col++)
 			{
 				int boardCol = (col - 1) / 2;
-				bool v = boardRow + 1 < playerBoard.Height && playerBoard.GetShipAt(boardRow, boardCol) == playerBoard.GetShipAt(boardRow + 1, boardCol);
-				bool h = boardCol + 1 < playerBoard.Width && playerBoard.GetShipAt(boardRow, boardCol) == playerBoard.GetShipAt(boardRow, boardCol + 1);
+				bool v = boardRow + 1 < _playerBoard.Height && _playerBoard.GetShipAt(boardRow, boardCol) == _playerBoard.GetShipAt(boardRow + 1, boardCol);
+				bool h = boardCol + 1 < _playerBoard.Width && _playerBoard.GetShipAt(boardRow, boardCol) == _playerBoard.GetShipAt(boardRow, boardCol + 1);
 
 				if (PlayerPlacementState.isPlacing &&
 				    PlayerPlacementState.currentPlacement.Vertical &&
@@ -64,7 +64,7 @@ public class GameRenderer
 				    !(boardRow == PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size - 1 && (row - 1) % 2 is 1) &&
 				    row is not 0)
 				{
-					Console.BackgroundColor = playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+					Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
 				else if (PlayerPlacementState.isPlacing &&
 				         !PlayerPlacementState.currentPlacement.Vertical &&
@@ -75,28 +75,32 @@ public class GameRenderer
 				         !(boardCol == PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size - 1 && (col - 1) % 2 is 1) &&
 				         col is not 0)
 				{
-					Console.BackgroundColor = playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+					Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement) ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
 				}
-				else if (playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
+				else if (_playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 				         ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
 				         ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && h)))
 				{
 					Console.BackgroundColor = ConsoleColor.DarkGray;
 				}
-				Console.Write(RenderBoardTile(row, col, playerBoard.Shots, playerBoard.Ships));
+				
+				
+				Console.Write(RenderBoardTile(row, col, _playerBoard.Shots, _playerBoard.Ships));
 				if (Console.BackgroundColor is not ConsoleColor.Black)
 				{
 					Console.BackgroundColor = ConsoleColor.Black;
 				}
+				
+				
 			}
 			Console.Write("  ");
-			for (int col = 0; col < enemyBoard.Width * 2 + 1; col++)
+			for (int col = 0; col < _enemyBoard.Width * 2 + 1; col++)
 			{
 				int boardCol = (col - 1) / 2;
-				bool v = boardRow + 1 < enemyBoard.Height && enemyBoard.GetShipAt(boardRow, boardCol) == enemyBoard.GetShipAt(boardRow + 1, boardCol);
-				bool h = boardCol + 1 < enemyBoard.Width && enemyBoard.GetShipAt(boardRow, boardCol) == enemyBoard.GetShipAt(boardRow, boardCol + 1);
+				bool v = boardRow + 1 < _enemyBoard.Height && _enemyBoard.GetShipAt(boardRow, boardCol) == _enemyBoard.GetShipAt(boardRow + 1, boardCol);
+				bool h = boardCol + 1 < _enemyBoard.Width && _enemyBoard.GetShipAt(boardRow, boardCol) == _enemyBoard.GetShipAt(boardRow, boardCol + 1);
 				if (showEnemyShips &&
-				    enemyBoard.GetShipAt(boardRow, boardCol) is not 0 &&
+				    _enemyBoard.GetShipAt(boardRow, boardCol) is not 0 &&
 					((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && v)) &&
 					((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && h)))
 				{
@@ -108,7 +112,7 @@ public class GameRenderer
 				{
 					Console.BackgroundColor = ConsoleColor.DarkYellow;
 				}
-				Console.Write(RenderBoardTile(row, col, enemyBoard.Shots, enemyBoard.Ships));
+				Console.Write(RenderBoardTile(row, col, _enemyBoard.Shots, _enemyBoard.Ships));
 				if (Console.BackgroundColor is not ConsoleColor.Black)
 				{
 					Console.BackgroundColor = ConsoleColor.Black;
@@ -116,7 +120,7 @@ public class GameRenderer
 			}
 			Console.WriteLine();
 		}
-		renderMessage?.Invoke();
+		RenderMessage?.Invoke();
 
 		
 	}
@@ -133,10 +137,10 @@ public class GameRenderer
 			Console.BufferWidth = Console.WindowWidth;
 		}
 
-		if (consoleSize != GetConsoleSize())
+		if (_consoleSize != GetConsoleSize())
 		{
 			Console.Clear();
-			consoleSize = GetConsoleSize();
+			_consoleSize = GetConsoleSize();
 		}
 	}
 
