@@ -1,30 +1,30 @@
 ﻿using System;
 using Towel.DataStructures;
 
-namespace Battleship;
+namespace Battleship.States;
 
 public class ShootingPhaseState
 {
-	private readonly GameRenderer renderer;
-	private readonly InputHandler inputHandler;
-	private readonly Board playerBoard;
-	private readonly Board enemyBoard;
+	private readonly GameRenderer _renderer;
+	private readonly InputHandler _inputHandler;
+	private readonly Board _playerBoard;
+	private readonly Board _enemyBoard;
 	public static GridPoint gridSelection;
 	public static bool isSelecting;
 
 	public ShootingPhaseState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard, Board enemyBoard)
 	{
-		this.renderer = renderer;
-		this.inputHandler = inputHandler;
-		this.playerBoard = playerBoard;
-		this.enemyBoard = enemyBoard;
+		_renderer = renderer;
+		_inputHandler = inputHandler;
+		_playerBoard = playerBoard;
+		_enemyBoard = enemyBoard;
 	}
 	
 	public bool Run()
 	{
-		gridSelection = new GridPoint(playerBoard.Height / 2, playerBoard.Width / 2);
+		gridSelection = new GridPoint(_playerBoard.Height / 2, _playerBoard.Width / 2);
 		Console.Clear();
-		renderer.renderMessage = () =>
+		_renderer.renderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  Choose your shots.");
@@ -38,9 +38,9 @@ public class ShootingPhaseState
 		while (HasNoWinnerYet())
 		{
 			ChooseOffense();
-			if (inputHandler.HasPressedEscape) return true;
+			if (_inputHandler.HasPressedEscape) return true;
 			RandomlyChooseDefense();
-			renderer.RenderMainView();
+			_renderer.RenderMainView();
 		}
 
 		isSelecting = false;
@@ -49,72 +49,94 @@ public class ShootingPhaseState
 	
 	private bool HasNoWinnerYet()
 	{
-		return !playerBoard.HasWon() && !enemyBoard.HasWon();
+		return !_playerBoard.HasWon() && !_enemyBoard.HasWon();
 	}
 	
 	private void RandomlyChooseDefense()
 	{
-		if (Random.Shared.Next(9) is 0)
+		if (ShouldShootPlayerShip())
 		{
-			for (int r = 0; r < playerBoard.Height; r++)
+			ShootPlayerShip();
+			return;
+		}
+			
+		ShootOpenLocation();
+	}
+
+	private static bool ShouldShootPlayerShip()
+	{
+		return Random.Shared.Next(9) is 0;
+	}
+
+	private void ShootOpenLocation()
+	{
+		var openLocations = FindOpenLocations();
+		var point = openLocations[Random.Shared.Next(openLocations.Count)];
+		_playerBoard.ShootAt(point.Row, point.Column);
+	}
+
+	private ListArray<GridPoint> FindOpenLocations()
+	{
+		ListArray<GridPoint> openLocations = new();
+		for (int row = 0; row < _playerBoard.Height; row++)
+		{
+			for (int col = 0; col < _playerBoard.Height; col++)
 			{
-				for (int c = 0; c < playerBoard.Height; c++)
-				{
-					if (!playerBoard.HasShotAt(r, c) && playerBoard.GetShipAt(r, c) is not 0)
-					{
-						playerBoard.ShootAt(r, c);
-						return;
-					}
-				}
+				if (!_playerBoard.HasShotAt(row, col)) 
+					openLocations.Add(new GridPoint(row, col));
 			}
 		}
-		else
+
+		return openLocations;
+	}
+
+	private void ShootPlayerShip()
+	{
+		for (int row = 0; row < _playerBoard.Height; row++)
 		{
-			ListArray<(int Row, int Column)> openLocations = new();
-			for (int r = 0; r < playerBoard.Height; r++)
+			for (int col = 0; col < _playerBoard.Height; col++)
 			{
-				for (int c = 0; c < playerBoard.Height; c++)
-				{
-					if (!playerBoard.HasShotAt(r, c))
-					{
-						openLocations.Add((r, c));
-					}
-				}
+				if (IsInvalidTargetLoc(row, col)) continue;
+				_playerBoard.ShootAt(row, col);
+				return;
 			}
-			(int row, int column) = openLocations[Random.Shared.Next(openLocations.Count)];
-			playerBoard.ShootAt(row, column);
 		}
 	}
-	
+
+	private bool IsInvalidTargetLoc(int row, int col)
+	{
+		return _playerBoard.HasShotAt(row, col) || _playerBoard.GetShipAt(row, col) is 0;
+	}
+
 	private void ChooseOffense()
 	{
 		while (true)
 		{
-			renderer.RenderMainView();
+			_renderer.RenderMainView();
 			switch (Console.ReadKey(true).Key)
 			{
 				case ConsoleKey.UpArrow:
 					gridSelection.Row = Math.Max(0, gridSelection.Row - 1);
 					break;
 				case ConsoleKey.DownArrow:
-					gridSelection.Row = Math.Min(enemyBoard.Height - 1, gridSelection.Row + 1);
+					gridSelection.Row = Math.Min(_enemyBoard.Height - 1, gridSelection.Row + 1);
 					break;
 				case ConsoleKey.LeftArrow:
 					gridSelection.Column = Math.Max(0, gridSelection.Column - 1);
 					break;
 				case ConsoleKey.RightArrow:
-					gridSelection.Column = Math.Min(enemyBoard.Width - 1, gridSelection.Column + 1);
+					gridSelection.Column = Math.Min(_enemyBoard.Width - 1, gridSelection.Column + 1);
 					break;
 				case ConsoleKey.Enter:
-					if (!enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
+					if (!_enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
 					{
-						enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
+						_enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
 						PlayerPlacementState.isPlacing = false;
 						return;
 					}
 					break;
 				case ConsoleKey.Escape:
-					inputHandler.HasPressedEscape = true;
+					_inputHandler.HasPressedEscape = true;
 					PlayerPlacementState.isPlacing = false;
 					return;
 			}
