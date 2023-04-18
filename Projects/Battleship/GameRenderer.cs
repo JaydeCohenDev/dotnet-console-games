@@ -51,9 +51,7 @@ public class GameRenderer
 			SetPlayerTileBackgroundColor(boardCol, boardRow, col, row, vertical, horizontal);
 
 			Console.Write(RenderBoardTile(row, col, _playerBoard.Shots, _playerBoard.Ships));
-			
-			if (Console.BackgroundColor is not ConsoleColor.Black)
-				Console.BackgroundColor = ConsoleColor.Black;
+			ResetBackgroundColor();
 		}
 	}
 	
@@ -68,13 +66,17 @@ public class GameRenderer
 			SetEnemyTileBackgroundColor(showEnemyShips, boardRow, row, boardCol, vertical, col, horizontal);
 			
 			Console.Write(RenderBoardTile(row, col, _enemyBoard.Shots, _enemyBoard.Ships));
-			
-			if (Console.BackgroundColor is not ConsoleColor.Black)
-				Console.BackgroundColor = ConsoleColor.Black;
+			ResetBackgroundColor();
 			
 		}
 	}
-	
+
+	private static void ResetBackgroundColor()
+	{
+		if (Console.BackgroundColor is not ConsoleColor.Black)
+			Console.BackgroundColor = ConsoleColor.Black;
+	}
+
 	private bool IsVertical(int boardRow, int boardCol, Board board)
 	{
 		return boardRow + 1 < board.Height && board.GetShipAt(boardRow, boardCol) ==
@@ -90,17 +92,11 @@ public class GameRenderer
 	private void SetEnemyTileBackgroundColor(bool showEnemyShips, int boardRow, int row, int boardCol, bool vertical, int col,
 		bool horizontal)
 	{
-		if (showEnemyShips &&
-		    _enemyBoard.GetShipAt(boardRow, boardCol) is not 0 &&
-		    ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && vertical)) &&
-		    ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && horizontal)))
+		if (CellHasVisibleEnemyShip(showEnemyShips, boardRow, row, boardCol, vertical, col, horizontal))
 		{
 			Console.BackgroundColor = ConsoleColor.DarkGray;
 		}
-		else if (ShootingPhaseState.isSelecting && ShootingPhaseState.gridSelection.Row == boardRow &&
-		         ShootingPhaseState.gridSelection.Column == boardCol &&
-		         (row - 1) % 2 is 0 &&
-		         (col - 1) % 2 is 0)
+		else if (IsCellAimedAt(boardRow, row, boardCol, col))
 		{
 			Console.BackgroundColor = ConsoleColor.DarkYellow;
 		}
@@ -108,40 +104,49 @@ public class GameRenderer
 
 	private void SetPlayerTileBackgroundColor(int boardCol, int boardRow, int col, int row, bool vertical, bool horizontal)
 	{
-		if (PlayerPlacementState.isPlacing &&
-		    PlayerPlacementState.currentPlacement.Vertical &&
-		    boardCol == PlayerPlacementState.currentPlacement.Column &&
-		    boardRow >= PlayerPlacementState.currentPlacement.Row &&
-		    boardRow < PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size &&
-		    (col - 1) % 2 is 0 &&
-		    !(boardRow == PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size - 1 &&
-		      (row - 1) % 2 is 1) &&
-		    row is not 0)
+		if (IsPlacingVerticalShipInCell(boardCol, boardRow, col, row) || IsPlacingHorizontalShipInCell(boardCol, boardRow, col, row))
 		{
 			Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement)
 				? ConsoleColor.DarkGreen
 				: ConsoleColor.DarkRed;
 		}
-		else if (PlayerPlacementState.isPlacing &&
-		         !PlayerPlacementState.currentPlacement.Vertical &&
-		         boardRow == PlayerPlacementState.currentPlacement.Row &&
-		         boardCol >= PlayerPlacementState.currentPlacement.Column &&
-		         boardCol < PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size &&
-		         (row - 1) % 2 is 0 &&
-		         !(boardCol == PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size -
-			         1 && (col - 1) % 2 is 1) &&
-		         col is not 0)
-		{
-			Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement)
-				? ConsoleColor.DarkGreen
-				: ConsoleColor.DarkRed;
-		}
-		else if (_playerBoard.GetShipAt(boardRow, boardCol) is not 0 &&
-		         ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && vertical)) &&
-		         ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && horizontal)))
+		else if (HasPlacedShipInCell(boardCol, boardRow, col, row, vertical, horizontal))
 		{
 			Console.BackgroundColor = ConsoleColor.DarkGray;
 		}
+	}
+
+	private bool HasPlacedShipInCell(int boardCol, int boardRow, int col, int row, bool vertical, bool horizontal)
+	{
+		return _playerBoard.HasShipAt(boardRow, boardCol) &&
+		       ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && vertical)) &&
+		       ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && horizontal));
+	}
+
+	private static bool IsPlacingHorizontalShipInCell(int boardCol, int boardRow, int col, int row)
+	{
+		return PlayerPlacementState.isPlacing &&
+		       !PlayerPlacementState.currentPlacement.Vertical &&
+		       boardRow == PlayerPlacementState.currentPlacement.Row &&
+		       boardCol >= PlayerPlacementState.currentPlacement.Column &&
+		       boardCol < PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size &&
+		       (row - 1) % 2 is 0 &&
+		       !(boardCol == PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size -
+			       1 && (col - 1) % 2 is 1) &&
+		       col is not 0;
+	}
+
+	private static bool IsPlacingVerticalShipInCell(int boardCol, int boardRow, int col, int row)
+	{
+		return PlayerPlacementState.isPlacing &&
+		       PlayerPlacementState.currentPlacement.Vertical &&
+		       boardCol == PlayerPlacementState.currentPlacement.Column &&
+		       boardRow >= PlayerPlacementState.currentPlacement.Row &&
+		       boardRow < PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size &&
+		       (col - 1) % 2 is 0 &&
+		       !(boardRow == PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size - 1 &&
+		         (row - 1) % 2 is 1) &&
+		       row is not 0;
 	}
 
 	private void SetupMainViewPass()
@@ -153,6 +158,22 @@ public class GameRenderer
 		Console.WriteLine();
 		Console.WriteLine("  Battleship");
 		Console.WriteLine();
+	}
+	
+	private bool CellHasVisibleEnemyShip(bool showEnemyShips, int boardRow, int row, int boardCol, bool vertical, int col, bool horizontal)
+	{
+		return showEnemyShips &&
+		       _enemyBoard.HasShipAt(boardRow, boardCol) &&
+		       ((row - 1) % 2 is 0 || ((row - 1) % 2 is 1 && vertical)) &&
+		       ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && horizontal));
+	}
+
+	private static bool IsCellAimedAt(int boardRow, int row, int boardCol, int col)
+	{
+		return ShootingPhaseState.isSelecting && ShootingPhaseState.gridSelection.Row == boardRow &&
+		       ShootingPhaseState.gridSelection.Column == boardCol &&
+		       (row - 1) % 2 is 0 &&
+		       (col - 1) % 2 is 0;
 	}
 
 	private void ValidateConsoleSize()

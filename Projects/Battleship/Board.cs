@@ -34,6 +34,11 @@ public class Board
 	{
 		return Ships[row, col];
 	}
+
+	public bool HasShipAt(int row, int col)
+	{
+		return GetShipAt(row, col) is not 0;
+	}
 	
 	public bool HasWon()
 	{
