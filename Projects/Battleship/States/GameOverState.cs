@@ -2,7 +2,7 @@
 
 namespace Battleship.States;
 
-public class GameOverState
+public class GameOverState : IGameState
 {
 	private Board _playerBoard, _enemyBoard;
 	
@@ -33,5 +33,10 @@ public class GameOverState
 		};
 		renderer.RenderMainView(showEnemyShips: true);
 		inputHandler.GetEnterOrEscape();
+	}
+
+	public void Render(GameRenderer renderer)
+	{
+		throw new NotImplementedException();
 	}
 }

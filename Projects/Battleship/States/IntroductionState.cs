@@ -2,7 +2,7 @@
 
 namespace Battleship.States;
 
-public class IntroductionState
+public class IntroductionState : IGameState
 {
 	public IntroductionState(GameRenderer renderer, InputHandler inputHandler)
 	{
@@ -21,5 +21,10 @@ public class IntroductionState
 		};
 		renderer.RenderMainView();
 		inputHandler.GetEnterOrEscape();
+	}
+
+	public void Render(GameRenderer renderer)
+	{
+		throw new NotImplementedException();
 	}
 }

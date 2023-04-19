@@ -3,7 +3,7 @@ using Towel.DataStructures;
 
 namespace Battleship.States;
 
-public class ShootingPhaseState
+public class ShootingPhaseState : IGameState
 {
 	private readonly GameRenderer _renderer;
 	private readonly InputHandler _inputHandler;
@@ -141,5 +141,10 @@ public class ShootingPhaseState
 					return;
 			}
 		}
+	}
+
+	public void Render(GameRenderer renderer)
+	{
+		throw new NotImplementedException();
 	}
 }

@@ -4,7 +4,7 @@ using Towel.DataStructures;
 
 namespace Battleship.States;
 
-public class EnemyPlacementState
+public class EnemyPlacementState : IGameState
 {
 	private readonly Board _enemyBoard;
 	
@@ -88,5 +88,10 @@ public class EnemyPlacementState
 			Column = column;
 			Vertical = vertical;
 		}
+	}
+
+	public void Render(GameRenderer renderer)
+	{
+		throw new NotImplementedException();
 	}
 }
