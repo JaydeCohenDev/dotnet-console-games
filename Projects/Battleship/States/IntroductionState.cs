@@ -4,10 +4,17 @@ namespace Battleship.States;
 
 public class IntroductionState : IGameState
 {
-	public IntroductionState(GameRenderer renderer, InputHandler inputHandler)
+	private readonly InputHandler _inputHandler;
+
+	public IntroductionState(InputHandler inputHandler)
+	{
+		_inputHandler = inputHandler;
+	}
+
+	public bool Enter()
 	{
 		Console.Clear();
-		renderer.RenderMessage = () =>
+		GameRenderer.Global.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  This is a guessing game where you will place your battle ships");
@@ -19,12 +26,13 @@ public class IntroductionState : IGameState
 			Console.WriteLine();
 			Console.WriteLine("  Press [enter] to begin...");
 		};
-		renderer.RenderMainView();
-		inputHandler.GetEnterOrEscape();
+		GameRenderer.Global.RenderMainView();
+		_inputHandler.GetEnterOrEscape();
+		return false;
 	}
 
 	public void Render(GameRenderer renderer)
 	{
-		throw new NotImplementedException();
+		
 	}
 }

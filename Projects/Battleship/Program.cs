@@ -10,6 +10,13 @@ public class Program
 	private readonly InputHandler _inputHandler;
 	private readonly GameRenderer _renderer;
 	private Exception? _exception;
+
+	private readonly IntroductionState _introductionState;
+	private readonly PlayerPlacementState _playerPlacementState;
+	private readonly EnemyPlacementState _enemyPlacementState;
+	private readonly ShootingPhaseState _shootingPhaseState;
+	private readonly GameOverState _gameOverState;
+	private readonly ShutdownState _shutdownState;
 	
 	public static void Main(string[] args)
 	{
@@ -21,9 +28,17 @@ public class Program
 	{
 		_playerBoard = new Board(10, 10);
 		_enemyBoard = new Board(10, 10);
-
-		_renderer = new GameRenderer(_playerBoard, _enemyBoard);
+		
 		_inputHandler = new InputHandler();
+		
+		_introductionState = new IntroductionState(_inputHandler);
+		_playerPlacementState = new PlayerPlacementState(_inputHandler, _playerBoard);
+		_enemyPlacementState = new EnemyPlacementState(_enemyBoard);
+		_shootingPhaseState = new ShootingPhaseState(_inputHandler, _playerBoard, _enemyBoard, _playerPlacementState);
+		_gameOverState = new GameOverState(_inputHandler, _playerBoard, _enemyBoard);
+		_shutdownState = new ShutdownState(_exception);
+		
+		_renderer = new GameRenderer(_playerBoard, _enemyBoard, _playerPlacementState, _shootingPhaseState);
 	}
 
 	public void Start()
@@ -39,7 +54,7 @@ public class Program
 		}
 		finally
 		{
-			new ShutdownState(_exception);
+			_shutdownState.Enter();
 		}
 	}
 
@@ -50,20 +65,19 @@ public class Program
 		while (!_inputHandler.HasPressedEscape)
 		{
 			// introduction screen
-			new IntroductionState(_renderer, _inputHandler);
+			_introductionState.Enter();
 			if (_inputHandler.HasPressedEscape) return true;
 
 			// ship placement
-			new PlayerPlacementState(_renderer, _inputHandler, _playerBoard);
+			_playerPlacementState.Enter();
 			if (_inputHandler.HasPressedEscape) return true;
-			new EnemyPlacementState(_renderer, _enemyBoard);
+			_enemyPlacementState.Enter();
 
 			// shooting phase
-			var shootingPhase = new ShootingPhaseState(_renderer, _inputHandler, _playerBoard, _enemyBoard);
-			if (shootingPhase.Run()) return true;
+			if (_shootingPhaseState.Enter()) return true;
 
 			// game over
-			new GameOverState(_renderer, _inputHandler, _playerBoard, _enemyBoard);
+			_gameOverState.Enter();
 		}
 
 		return false;

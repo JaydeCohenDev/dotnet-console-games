@@ -5,19 +5,22 @@ namespace Battleship.States;
 
 public class PlayerPlacementState : IGameState
 {
-	private readonly GameRenderer _renderer;
 	private readonly InputHandler _inputHandler;
 	private readonly Board _playerBoard;
-	public static bool IsPlacing;
-	public static Placement CurrentPlacement;
+	public bool IsPlacing;
+	public Placement CurrentPlacement;
 	
-	public PlayerPlacementState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard)
+	public PlayerPlacementState(InputHandler inputHandler, Board playerBoard)
 	{
-		_renderer = renderer;
 		_inputHandler = inputHandler;
 		_playerBoard = playerBoard;
+	}
+
+	public bool Enter()
+	{
 		Console.Clear();
 		PlaceDefenseShips();
+		return false;
 	}
 	
 	private void PlaceDefenseShips()
@@ -33,7 +36,7 @@ public class PlayerPlacementState : IGameState
 			
 			while (isPlacementMode)
 			{
-				_renderer.RenderMainView();
+				GameRenderer.Global.RenderMainView();
 				if (HandlePlacement(size, ship, ref isPlacementMode)) return;
 			}
 		}
@@ -42,7 +45,7 @@ public class PlayerPlacementState : IGameState
 
 	private void UpdateRenderMessage(Ship ship)
 	{
-		_renderer.RenderMessage = () =>
+		GameRenderer.Global.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine($"  Place your {ship} on the grid.");
@@ -118,7 +121,7 @@ public class PlayerPlacementState : IGameState
 			_playerBoard.Width - (!CurrentPlacement.Vertical ? size : 1));
 	}
 
-	private static void MoveLeft()
+	private void MoveLeft()
 	{
 		CurrentPlacement.Column = Math.Max(CurrentPlacement.Column - 1, 0);
 	}
@@ -131,7 +134,7 @@ public class PlayerPlacementState : IGameState
 			Math.Min(CurrentPlacement.Column, _playerBoard.Width - (!CurrentPlacement.Vertical ? size : 1));
 	}
 
-	private static void MoveUp()
+	private void MoveUp()
 	{
 		CurrentPlacement.Row = Math.Max(CurrentPlacement.Row - 1, 0);
 	}

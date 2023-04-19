@@ -4,18 +4,24 @@ namespace Battleship.States;
 
 public class GameOverState : IGameState
 {
-	private Board _playerBoard, _enemyBoard;
-	
-	public GameOverState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard, Board enemyBoard)
+	private readonly InputHandler _inputHandler;
+	private readonly Board _playerBoard;
+	private readonly Board _enemyBoard;
+
+	public GameOverState(InputHandler inputHandler, Board playerBoard, Board enemyBoard)
 	{
-		this._playerBoard = playerBoard;
-		this._enemyBoard = enemyBoard;
-		
+		_inputHandler = inputHandler;
+		_playerBoard = playerBoard;
+		_enemyBoard = enemyBoard;
+	}
+
+	public bool Enter()
+	{
 		Console.Clear();
-		renderer.RenderMessage = () =>
+		GameRenderer.Global.RenderMessage = () =>
 		{
 			Console.WriteLine();
-			switch ((playerBoard.HasWon(), enemyBoard.HasWon()))
+			switch ((_playerBoard.HasWon(), _enemyBoard.HasWon()))
 			{
 				case (true, true):
 					Console.WriteLine("  Draw! All ships were sunk.");
@@ -31,8 +37,9 @@ public class GameOverState : IGameState
 			Console.WriteLine();
 			Console.WriteLine("  Play again [enter] or quit [escape]?");
 		};
-		renderer.RenderMainView(showEnemyShips: true);
-		inputHandler.GetEnterOrEscape();
+		GameRenderer.Global.RenderMainView(showEnemyShips: true);
+		_inputHandler.GetEnterOrEscape();
+		return false;
 	}
 
 	public void Render(GameRenderer renderer)

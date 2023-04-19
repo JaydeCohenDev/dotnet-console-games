@@ -5,26 +5,31 @@ namespace Battleship.States;
 
 public class ShootingPhaseState : IGameState
 {
-	private readonly GameRenderer _renderer;
 	private readonly InputHandler _inputHandler;
 	private readonly Board _playerBoard;
 	private readonly Board _enemyBoard;
-	public static GridPoint gridSelection;
-	public static bool isSelecting;
+	private readonly PlayerPlacementState _playerPlacementState;
+	public GridPoint GridSelection;
+	public bool IsSelecting;
 
-	public ShootingPhaseState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard, Board enemyBoard)
+	public ShootingPhaseState(InputHandler inputHandler, Board playerBoard, Board enemyBoard, PlayerPlacementState playerPlacementState)
 	{
-		_renderer = renderer;
 		_inputHandler = inputHandler;
 		_playerBoard = playerBoard;
 		_enemyBoard = enemyBoard;
+		_playerPlacementState = playerPlacementState;
+	}
+
+	public bool Enter()
+	{
+		return Run();
 	}
 	
 	public bool Run()
 	{
-		gridSelection = new GridPoint(_playerBoard.Height / 2, _playerBoard.Width / 2);
+		GridSelection = new GridPoint(_playerBoard.Height / 2, _playerBoard.Width / 2);
 		Console.Clear();
-		_renderer.RenderMessage = () =>
+		GameRenderer.Global.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  Choose your shots.");
@@ -34,16 +39,16 @@ public class ShootingPhaseState : IGameState
 			Console.WriteLine("  Use arrow keys to aim.");
 			Console.WriteLine("  Use [enter] to fire at the location.");
 		};
-		isSelecting = true;
+		IsSelecting = true;
 		while (HasNoWinnerYet())
 		{
 			ChooseOffense();
 			if (_inputHandler.HasPressedEscape) return true;
 			RandomlyChooseDefense();
-			_renderer.RenderMainView();
+			GameRenderer.Global.RenderMainView();
 		}
 
-		isSelecting = false;
+		IsSelecting = false;
 		return false;
 	}
 	
@@ -63,7 +68,7 @@ public class ShootingPhaseState : IGameState
 		ShootOpenLocation();
 	}
 
-	private static bool ShouldShootPlayerShip()
+	private bool ShouldShootPlayerShip()
 	{
 		return Random.Shared.Next(9) is 0;
 	}
@@ -112,32 +117,32 @@ public class ShootingPhaseState : IGameState
 	{
 		while (true)
 		{
-			_renderer.RenderMainView();
+			GameRenderer.Global.RenderMainView();
 			switch (Console.ReadKey(true).Key)
 			{
 				case ConsoleKey.UpArrow:
-					gridSelection.Row = Math.Max(0, gridSelection.Row - 1);
+					GridSelection.Row = Math.Max(0, GridSelection.Row - 1);
 					break;
 				case ConsoleKey.DownArrow:
-					gridSelection.Row = Math.Min(_enemyBoard.Height - 1, gridSelection.Row + 1);
+					GridSelection.Row = Math.Min(_enemyBoard.Height - 1, GridSelection.Row + 1);
 					break;
 				case ConsoleKey.LeftArrow:
-					gridSelection.Column = Math.Max(0, gridSelection.Column - 1);
+					GridSelection.Column = Math.Max(0, GridSelection.Column - 1);
 					break;
 				case ConsoleKey.RightArrow:
-					gridSelection.Column = Math.Min(_enemyBoard.Width - 1, gridSelection.Column + 1);
+					GridSelection.Column = Math.Min(_enemyBoard.Width - 1, GridSelection.Column + 1);
 					break;
 				case ConsoleKey.Enter:
-					if (!_enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
+					if (!_enemyBoard.HasShotAt(GridSelection.Row, GridSelection.Column))
 					{
-						_enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
-						PlayerPlacementState.IsPlacing = false;
+						_enemyBoard.ShootAt(GridSelection.Row, GridSelection.Column);
+						_playerPlacementState.IsPlacing = false;
 						return;
 					}
 					break;
 				case ConsoleKey.Escape:
 					_inputHandler.HasPressedEscape = true;
-					PlayerPlacementState.IsPlacing = false;
+					_playerPlacementState.IsPlacing = false;
 					return;
 			}
 		}

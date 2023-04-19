@@ -8,19 +8,23 @@ public class EnemyPlacementState : IGameState
 {
 	private readonly Board _enemyBoard;
 	
-	public EnemyPlacementState(GameRenderer renderer, Board enemyBoard)
+	public EnemyPlacementState(Board enemyBoard)
 	{
 		_enemyBoard = enemyBoard;
-		
+	}
+
+	public bool Enter()
+	{
 		RandomizeOffenseShips();
-		renderer.RenderMessage = () =>
+		GameRenderer.Global.RenderMessage = () =>
 		{
 			Console.WriteLine();
 			Console.WriteLine("  The enemy has placed their ships.");
 			Console.WriteLine();
 			Console.WriteLine("  Press [enter] to continue...");
 		};
-		renderer.RenderMainView();
+		GameRenderer.Global.RenderMainView();
+		return false;
 	}
 	
 	private void RandomizeOffenseShips()
@@ -35,7 +39,7 @@ public class EnemyPlacementState : IGameState
 		}
 	}
 
-	private static AiPlacement ChooseAiPlacementLocation(ListArray<AiPlacement> locations)
+	private AiPlacement ChooseAiPlacementLocation(ListArray<AiPlacement> locations)
 	{
 		return locations[Random.Shared.Next(0, locations.Count)];
 	}

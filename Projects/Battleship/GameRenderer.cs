@@ -5,16 +5,24 @@ namespace Battleship;
 
 public class GameRenderer
 {
+	public static GameRenderer Global;
+	
 	public Action? RenderMessage;
 	private ConsoleSize _consoleSize;
 
 	private readonly Board _playerBoard;
 	private readonly Board _enemyBoard;
+	private readonly PlayerPlacementState _placementState;
+	private readonly ShootingPhaseState _shootingPhaseState;
 
-	public GameRenderer(Board playerBoard, Board enemyBoard)
+	public GameRenderer(Board playerBoard, Board enemyBoard, PlayerPlacementState placementState, ShootingPhaseState shootingPhaseState)
 	{
 		_playerBoard = playerBoard;
 		_enemyBoard = enemyBoard;
+		_placementState = placementState;
+		_shootingPhaseState = shootingPhaseState;
+
+		Global = this;
 	}
 
 	public void SetupConsole()
@@ -71,7 +79,7 @@ public class GameRenderer
 		}
 	}
 
-	private static void ResetBackgroundColor()
+	private void ResetBackgroundColor()
 	{
 		if (Console.BackgroundColor is not ConsoleColor.Black)
 			Console.BackgroundColor = ConsoleColor.Black;
@@ -106,7 +114,7 @@ public class GameRenderer
 	{
 		if (IsPlacingVerticalShipInCell(boardCol, boardRow, col, row) || IsPlacingHorizontalShipInCell(boardCol, boardRow, col, row))
 		{
-			Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.CurrentPlacement)
+			Console.BackgroundColor = _playerBoard.IsValidPlacement(_placementState.CurrentPlacement)
 				? ConsoleColor.DarkGreen
 				: ConsoleColor.DarkRed;
 		}
@@ -123,28 +131,28 @@ public class GameRenderer
 		       ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && horizontal));
 	}
 
-	private static bool IsPlacingHorizontalShipInCell(int boardCol, int boardRow, int col, int row)
+	private bool IsPlacingHorizontalShipInCell(int boardCol, int boardRow, int col, int row)
 	{
-		return PlayerPlacementState.IsPlacing &&
-		       !PlayerPlacementState.CurrentPlacement.Vertical &&
-		       boardRow == PlayerPlacementState.CurrentPlacement.Row &&
-		       boardCol >= PlayerPlacementState.CurrentPlacement.Column &&
-		       boardCol < PlayerPlacementState.CurrentPlacement.Column + PlayerPlacementState.CurrentPlacement.Size &&
+		return _placementState.IsPlacing &&
+		       !_placementState.CurrentPlacement.Vertical &&
+		       boardRow == _placementState.CurrentPlacement.Row &&
+		       boardCol >= _placementState.CurrentPlacement.Column &&
+		       boardCol < _placementState.CurrentPlacement.Column + _placementState.CurrentPlacement.Size &&
 		       (row - 1) % 2 is 0 &&
-		       !(boardCol == PlayerPlacementState.CurrentPlacement.Column + PlayerPlacementState.CurrentPlacement.Size -
+		       !(boardCol == _placementState.CurrentPlacement.Column + _placementState.CurrentPlacement.Size -
 			       1 && (col - 1) % 2 is 1) &&
 		       col is not 0;
 	}
 
-	private static bool IsPlacingVerticalShipInCell(int boardCol, int boardRow, int col, int row)
+	private bool IsPlacingVerticalShipInCell(int boardCol, int boardRow, int col, int row)
 	{
-		return PlayerPlacementState.IsPlacing &&
-		       PlayerPlacementState.CurrentPlacement.Vertical &&
-		       boardCol == PlayerPlacementState.CurrentPlacement.Column &&
-		       boardRow >= PlayerPlacementState.CurrentPlacement.Row &&
-		       boardRow < PlayerPlacementState.CurrentPlacement.Row + PlayerPlacementState.CurrentPlacement.Size &&
+		return _placementState.IsPlacing &&
+		       _placementState.CurrentPlacement.Vertical &&
+		       boardCol == _placementState.CurrentPlacement.Column &&
+		       boardRow >= _placementState.CurrentPlacement.Row &&
+		       boardRow < _placementState.CurrentPlacement.Row + _placementState.CurrentPlacement.Size &&
 		       (col - 1) % 2 is 0 &&
-		       !(boardRow == PlayerPlacementState.CurrentPlacement.Row + PlayerPlacementState.CurrentPlacement.Size - 1 &&
+		       !(boardRow == _placementState.CurrentPlacement.Row + _placementState.CurrentPlacement.Size - 1 &&
 		         (row - 1) % 2 is 1) &&
 		       row is not 0;
 	}
@@ -168,10 +176,10 @@ public class GameRenderer
 		       ((col - 1) % 2 is 0 || ((col - 1) % 2 is 1 && horizontal));
 	}
 
-	private static bool IsCellAimedAt(int boardRow, int row, int boardCol, int col)
+	private bool IsCellAimedAt(int boardRow, int row, int boardCol, int col)
 	{
-		return ShootingPhaseState.isSelecting && ShootingPhaseState.gridSelection.Row == boardRow &&
-		       ShootingPhaseState.gridSelection.Column == boardCol &&
+		return _shootingPhaseState.IsSelecting && _shootingPhaseState.GridSelection.Row == boardRow &&
+		       _shootingPhaseState.GridSelection.Column == boardCol &&
 		       (row - 1) % 2 is 0 &&
 		       (col - 1) % 2 is 0;
 	}
