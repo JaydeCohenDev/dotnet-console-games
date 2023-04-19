@@ -3,13 +3,13 @@ using Towel;
 
 namespace Battleship.States;
 
-public class PlayerPlacementState
+public class PlayerPlacementState : IGameState
 {
 	private readonly GameRenderer _renderer;
 	private readonly InputHandler _inputHandler;
 	private readonly Board _playerBoard;
-	public static bool isPlacing;
-	public static Placement currentPlacement;
+	public static bool IsPlacing;
+	public static Placement CurrentPlacement;
 	
 	public PlayerPlacementState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard)
 	{
@@ -22,13 +22,13 @@ public class PlayerPlacementState
 	
 	private void PlaceDefenseShips()
 	{
-		isPlacing = true;
+		IsPlacing = true;
 		foreach (Ship ship in Enum.GetValues<Ship>())
 		{
 			UpdateRenderMessage(ship);
 
 			int size = (int)ship.GetTag("size").Value!;
-			currentPlacement = new Placement(ship, size, 0, 0, true);
+			CurrentPlacement = new Placement(ship, size, 0, 0, true);
 			bool isPlacementMode = true;
 			
 			while (isPlacementMode)
@@ -37,7 +37,7 @@ public class PlayerPlacementState
 				if (HandlePlacement(size, ship, ref isPlacementMode)) return;
 			}
 		}
-		isPlacing = false;
+		IsPlacing = false;
 	}
 
 	private void UpdateRenderMessage(Ship ship)
@@ -90,11 +90,11 @@ public class PlayerPlacementState
 
 	private bool PlaceShip(Ship ship, bool isPlacementMode)
 	{
-		if (!_playerBoard.IsValidPlacement(currentPlacement)) return isPlacementMode;
-		for (int i = 0; i < currentPlacement.Size; i++)
+		if (!_playerBoard.IsValidPlacement(CurrentPlacement)) return isPlacementMode;
+		for (int i = 0; i < CurrentPlacement.Size; i++)
 		{
-			int row = currentPlacement.Row + (currentPlacement.Vertical ? i : 0);
-			int col = currentPlacement.Column + (!currentPlacement.Vertical ? i : 0);
+			int row = CurrentPlacement.Row + (CurrentPlacement.Vertical ? i : 0);
+			int col = CurrentPlacement.Column + (!CurrentPlacement.Vertical ? i : 0);
 			_playerBoard.PlaceShip(ship, row, col);
 		}
 
@@ -105,34 +105,39 @@ public class PlayerPlacementState
 
 	private void RotatePlacement(int size)
 	{
-		currentPlacement.Vertical = !currentPlacement.Vertical;
-		currentPlacement.Row = Math.Min(currentPlacement.Row, _playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-		currentPlacement.Column =
-			Math.Min(currentPlacement.Column, _playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
+		CurrentPlacement.Vertical = !CurrentPlacement.Vertical;
+		CurrentPlacement.Row = Math.Min(CurrentPlacement.Row, _playerBoard.Height - (CurrentPlacement.Vertical ? size : 1));
+		CurrentPlacement.Column =
+			Math.Min(CurrentPlacement.Column, _playerBoard.Width - (!CurrentPlacement.Vertical ? size : 1));
 	}
 
 	private void MoveRight(int size)
 	{
-		currentPlacement.Row = Math.Min(currentPlacement.Row, _playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-		currentPlacement.Column = Math.Min(currentPlacement.Column + 1,
-			_playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
+		CurrentPlacement.Row = Math.Min(CurrentPlacement.Row, _playerBoard.Height - (CurrentPlacement.Vertical ? size : 1));
+		CurrentPlacement.Column = Math.Min(CurrentPlacement.Column + 1,
+			_playerBoard.Width - (!CurrentPlacement.Vertical ? size : 1));
 	}
 
 	private static void MoveLeft()
 	{
-		currentPlacement.Column = Math.Max(currentPlacement.Column - 1, 0);
+		CurrentPlacement.Column = Math.Max(CurrentPlacement.Column - 1, 0);
 	}
 
 	private void MoveDown(int size)
 	{
-		currentPlacement.Row =
-			Math.Min(currentPlacement.Row + 1, _playerBoard.Height - (currentPlacement.Vertical ? size : 1));
-		currentPlacement.Column =
-			Math.Min(currentPlacement.Column, _playerBoard.Width - (!currentPlacement.Vertical ? size : 1));
+		CurrentPlacement.Row =
+			Math.Min(CurrentPlacement.Row + 1, _playerBoard.Height - (CurrentPlacement.Vertical ? size : 1));
+		CurrentPlacement.Column =
+			Math.Min(CurrentPlacement.Column, _playerBoard.Width - (!CurrentPlacement.Vertical ? size : 1));
 	}
 
 	private static void MoveUp()
 	{
-		currentPlacement.Row = Math.Max(currentPlacement.Row - 1, 0);
+		CurrentPlacement.Row = Math.Max(CurrentPlacement.Row - 1, 0);
+	}
+
+	public void Render(GameRenderer renderer)
+	{
+		
 	}
 }

@@ -4,12 +4,12 @@ namespace Battleship.States;
 
 public class GameOverState
 {
-	private Board playerBoard, enemyBoard;
+	private Board _playerBoard, _enemyBoard;
 	
 	public GameOverState(GameRenderer renderer, InputHandler inputHandler, Board playerBoard, Board enemyBoard)
 	{
-		this.playerBoard = playerBoard;
-		this.enemyBoard = enemyBoard;
+		this._playerBoard = playerBoard;
+		this._enemyBoard = enemyBoard;
 		
 		Console.Clear();
 		renderer.RenderMessage = () =>

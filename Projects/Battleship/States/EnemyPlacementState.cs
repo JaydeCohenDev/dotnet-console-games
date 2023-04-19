@@ -30,9 +30,14 @@ public class EnemyPlacementState
 			int size = (int)ship.GetTag("size").Value!;
 			var locations = FindPossiblePlacementLocations(size);
 			
-			AiPlacement placement = locations[Random.Shared.Next(0, locations.Count)];
+			AiPlacement placement = ChooseAiPlacementLocation(locations);
 			PlaceShip(size, placement, ship);
 		}
+	}
+
+	private static AiPlacement ChooseAiPlacementLocation(ListArray<AiPlacement> locations)
+	{
+		return locations[Random.Shared.Next(0, locations.Count)];
 	}
 
 	private void PlaceShip(int size, AiPlacement placement, Ship ship)

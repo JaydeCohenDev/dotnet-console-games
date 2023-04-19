@@ -131,13 +131,13 @@ public class ShootingPhaseState
 					if (!_enemyBoard.HasShotAt(gridSelection.Row, gridSelection.Column))
 					{
 						_enemyBoard.ShootAt(gridSelection.Row, gridSelection.Column);
-						PlayerPlacementState.isPlacing = false;
+						PlayerPlacementState.IsPlacing = false;
 						return;
 					}
 					break;
 				case ConsoleKey.Escape:
 					_inputHandler.HasPressedEscape = true;
-					PlayerPlacementState.isPlacing = false;
+					PlayerPlacementState.IsPlacing = false;
 					return;
 			}
 		}

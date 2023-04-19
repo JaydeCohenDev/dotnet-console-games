@@ -106,7 +106,7 @@ public class GameRenderer
 	{
 		if (IsPlacingVerticalShipInCell(boardCol, boardRow, col, row) || IsPlacingHorizontalShipInCell(boardCol, boardRow, col, row))
 		{
-			Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.currentPlacement)
+			Console.BackgroundColor = _playerBoard.IsValidPlacement(PlayerPlacementState.CurrentPlacement)
 				? ConsoleColor.DarkGreen
 				: ConsoleColor.DarkRed;
 		}
@@ -125,26 +125,26 @@ public class GameRenderer
 
 	private static bool IsPlacingHorizontalShipInCell(int boardCol, int boardRow, int col, int row)
 	{
-		return PlayerPlacementState.isPlacing &&
-		       !PlayerPlacementState.currentPlacement.Vertical &&
-		       boardRow == PlayerPlacementState.currentPlacement.Row &&
-		       boardCol >= PlayerPlacementState.currentPlacement.Column &&
-		       boardCol < PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size &&
+		return PlayerPlacementState.IsPlacing &&
+		       !PlayerPlacementState.CurrentPlacement.Vertical &&
+		       boardRow == PlayerPlacementState.CurrentPlacement.Row &&
+		       boardCol >= PlayerPlacementState.CurrentPlacement.Column &&
+		       boardCol < PlayerPlacementState.CurrentPlacement.Column + PlayerPlacementState.CurrentPlacement.Size &&
 		       (row - 1) % 2 is 0 &&
-		       !(boardCol == PlayerPlacementState.currentPlacement.Column + PlayerPlacementState.currentPlacement.Size -
+		       !(boardCol == PlayerPlacementState.CurrentPlacement.Column + PlayerPlacementState.CurrentPlacement.Size -
 			       1 && (col - 1) % 2 is 1) &&
 		       col is not 0;
 	}
 
 	private static bool IsPlacingVerticalShipInCell(int boardCol, int boardRow, int col, int row)
 	{
-		return PlayerPlacementState.isPlacing &&
-		       PlayerPlacementState.currentPlacement.Vertical &&
-		       boardCol == PlayerPlacementState.currentPlacement.Column &&
-		       boardRow >= PlayerPlacementState.currentPlacement.Row &&
-		       boardRow < PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size &&
+		return PlayerPlacementState.IsPlacing &&
+		       PlayerPlacementState.CurrentPlacement.Vertical &&
+		       boardCol == PlayerPlacementState.CurrentPlacement.Column &&
+		       boardRow >= PlayerPlacementState.CurrentPlacement.Row &&
+		       boardRow < PlayerPlacementState.CurrentPlacement.Row + PlayerPlacementState.CurrentPlacement.Size &&
 		       (col - 1) % 2 is 0 &&
-		       !(boardRow == PlayerPlacementState.currentPlacement.Row + PlayerPlacementState.currentPlacement.Size - 1 &&
+		       !(boardRow == PlayerPlacementState.CurrentPlacement.Row + PlayerPlacementState.CurrentPlacement.Size - 1 &&
 		         (row - 1) % 2 is 1) &&
 		       row is not 0;
 	}
@@ -188,11 +188,9 @@ public class GameRenderer
 			Console.BufferWidth = Console.WindowWidth;
 		}
 
-		if (_consoleSize != GetConsoleSize())
-		{
-			Console.Clear();
-			_consoleSize = GetConsoleSize();
-		}
+		if (_consoleSize == GetConsoleSize()) return;
+		Console.Clear();
+		_consoleSize = GetConsoleSize();
 	}
 
 	private string RenderBoardTile(int row, int col, bool[,] shots, Ship[,] ships)
@@ -202,7 +200,7 @@ public class GameRenderer
 		const string open = "  ";
 		const int fullWidth = 10 * 2;
 		const int fullHeight = 10 * 2;
-		return (r: row, c: col, row % 2, col % 2) switch
+		return (row, col, row % 2, col % 2) switch
 		{
 			(0, 0, _, _) => "┌",
 			(fullHeight, 0, _, _) => "└",
