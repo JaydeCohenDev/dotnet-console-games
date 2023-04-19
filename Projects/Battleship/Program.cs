@@ -5,8 +5,6 @@ namespace Battleship;
 
 public class Program
 {
-	private readonly Board _playerBoard;
-	private readonly Board _enemyBoard;
 	private readonly InputHandler _inputHandler;
 	private readonly GameRenderer _renderer;
 	private Exception? _exception;
@@ -20,25 +18,25 @@ public class Program
 	
 	public static void Main(string[] args)
 	{
-		var program = new Program();
+		Program program = new Program();
 		program.Start();
 	}
 
 	public Program()
 	{
-		_playerBoard = new Board(10, 10);
-		_enemyBoard = new Board(10, 10);
+		Board playerBoard = new Board(10, 10);
+		Board enemyBoard = new Board(10, 10);
 		
 		_inputHandler = new InputHandler();
 		
 		_introductionState = new IntroductionState(_inputHandler);
-		_playerPlacementState = new PlayerPlacementState(_inputHandler, _playerBoard);
-		_enemyPlacementState = new EnemyPlacementState(_enemyBoard);
-		_shootingPhaseState = new ShootingPhaseState(_inputHandler, _playerBoard, _enemyBoard, _playerPlacementState);
-		_gameOverState = new GameOverState(_inputHandler, _playerBoard, _enemyBoard);
+		_playerPlacementState = new PlayerPlacementState(_inputHandler, playerBoard);
+		_enemyPlacementState = new EnemyPlacementState(enemyBoard);
+		_shootingPhaseState = new ShootingPhaseState(_inputHandler, playerBoard, enemyBoard, _playerPlacementState);
+		_gameOverState = new GameOverState(_inputHandler, playerBoard, enemyBoard);
 		_shutdownState = new ShutdownState(_exception);
 		
-		_renderer = new GameRenderer(_playerBoard, _enemyBoard, _playerPlacementState, _shootingPhaseState);
+		_renderer = new GameRenderer(playerBoard, enemyBoard, _playerPlacementState, _shootingPhaseState);
 	}
 
 	public void Start()
@@ -58,7 +56,7 @@ public class Program
 		}
 	}
 
-	private bool GameLoop()
+	private void GameLoop()
 	{
 		_renderer.SetupConsole();
 
@@ -66,20 +64,18 @@ public class Program
 		{
 			// introduction screen
 			_introductionState.Enter();
-			if (_inputHandler.HasPressedEscape) return true;
+			if (_inputHandler.HasPressedEscape) return;
 
 			// ship placement
 			_playerPlacementState.Enter();
-			if (_inputHandler.HasPressedEscape) return true;
+			if (_inputHandler.HasPressedEscape) return;
 			_enemyPlacementState.Enter();
 
 			// shooting phase
-			if (_shootingPhaseState.Enter()) return true;
+			if (_shootingPhaseState.Enter()) return;
 
 			// game over
 			_gameOverState.Enter();
 		}
-
-		return false;
 	}
 }

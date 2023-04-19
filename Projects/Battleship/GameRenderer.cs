@@ -58,7 +58,7 @@ public class GameRenderer
 
 			SetPlayerTileBackgroundColor(boardCol, boardRow, col, row, vertical, horizontal);
 
-			Console.Write(RenderBoardTile(row, col, _playerBoard.Shots, _playerBoard.Ships));
+			Console.Write(RenderBoardTile(row, col, _playerBoard));
 			ResetBackgroundColor();
 		}
 	}
@@ -73,9 +73,8 @@ public class GameRenderer
 			
 			SetEnemyTileBackgroundColor(showEnemyShips, boardRow, row, boardCol, vertical, col, horizontal);
 			
-			Console.Write(RenderBoardTile(row, col, _enemyBoard.Shots, _enemyBoard.Ships));
+			Console.Write(RenderBoardTile(row, col, _enemyBoard));
 			ResetBackgroundColor();
-			
 		}
 	}
 
@@ -133,8 +132,7 @@ public class GameRenderer
 
 	private bool IsPlacingHorizontalShipInCell(int boardCol, int boardRow, int col, int row)
 	{
-		return _placementState.IsPlacing &&
-		       !_placementState.CurrentPlacement.Vertical &&
+		return _placementState is { IsPlacing: true, CurrentPlacement.Vertical: false } &&
 		       boardRow == _placementState.CurrentPlacement.Row &&
 		       boardCol >= _placementState.CurrentPlacement.Column &&
 		       boardCol < _placementState.CurrentPlacement.Column + _placementState.CurrentPlacement.Size &&
@@ -146,8 +144,7 @@ public class GameRenderer
 
 	private bool IsPlacingVerticalShipInCell(int boardCol, int boardRow, int col, int row)
 	{
-		return _placementState.IsPlacing &&
-		       _placementState.CurrentPlacement.Vertical &&
+		return _placementState is { IsPlacing: true, CurrentPlacement.Vertical: true } &&
 		       boardCol == _placementState.CurrentPlacement.Column &&
 		       boardRow >= _placementState.CurrentPlacement.Row &&
 		       boardRow < _placementState.CurrentPlacement.Row + _placementState.CurrentPlacement.Size &&
@@ -201,7 +198,7 @@ public class GameRenderer
 		_consoleSize = GetConsoleSize();
 	}
 
-	private string RenderBoardTile(int row, int col, bool[,] shots, Ship[,] ships)
+	private string RenderBoardTile(int row, int col, Board board)
 	{
 		const string hit = "##";
 		const string miss = "XX";
@@ -222,8 +219,8 @@ public class GameRenderer
 			(_, _, 1, 0) => "│",
 			(_, _, 0, 1) => "──",
 			_ =>
-				shots[(row - 1) / 2, (col - 1) / 2]
-					? (ships[(row - 1) / 2, (col - 1) / 2] is not 0
+				board.Shots[(row - 1) / 2, (col - 1) / 2]
+					? (board.Ships[(row - 1) / 2, (col - 1) / 2] is not 0
 						? hit
 						: miss)
 					: open,
